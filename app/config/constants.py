@@ -32,8 +32,19 @@ class VectorStoreType(str, Enum):
 class LLMProvider(str, Enum):
     """LLM provider types."""
     OPENAI = "openai"
-    AWS = "aws"
+    BEDROCK = "bedrock"
 
+
+# LLM Model Constants
+OPENAI_MODELS = {
+    "gpt-3.5-turbo": "gpt-3.5-turbo",
+    "gpt-4": "gpt-4",
+}
+
+BEDROCK_MODELS = {
+    "claude-3-sonnet": "anthropic.claude-3-sonnet-20240229-v1:0",
+    "claude-3-haiku": "anthropic.claude-3-haiku-20240307-v1:0",
+}
 
 # System Constants
 MAX_HISTORY_LENGTH = 10  # Maximum number of messages to keep in chat history
