@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  sitechat:
+    build:
+      context: ../..
+      dockerfile: docker/dev/Dockerfile
+    ports:
+      - "8501:8501"
+    volumes:
+      - ../..:/app
+      - sitechat_logs:/app/logs
+      - sitechat_vectorstore:/app/vectorstore
+    environment:
+      - APP_ENV=development
+      - APP_DEBUG=true
+      - LOG_LEVEL=INFO
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=gpt-3.5-turbo
+      - PYTHONPATH=/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  sitechat_logs:
+    driver: local
+  sitechat_vectorstore:
+    driver: local
