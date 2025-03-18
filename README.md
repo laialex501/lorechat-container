@@ -68,8 +68,8 @@ cd SiteChat
 2. Create a `.env` file in the project root based on `.env.dev`:
 ```bash
 # Environment
-ENV=development
-DEBUG=true
+APP_ENV=development
+APP_DEBUG=true
 LOG_LEVEL=INFO
 
 # LLM Configuration
@@ -86,6 +86,8 @@ AWS_BEDROCK_MODEL_ID=anthropic.claude-3-sonnet-20240229-v1:0
 ```
 
 3. Start the development environment:
+Install Docker Desktop https://docs.docker.com/desktop/
+
 ```bash
 cd docker/dev
 docker-compose up --build

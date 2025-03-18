@@ -73,6 +73,12 @@ class Settings(BaseSettings):
         BASE_DIR / "vectorstore",
         env="VECTOR_STORE_PATH"
     )
+
+    # Embeddings type for vector store
+    EMBEDDINGS_TYPE: Literal["document", "query"] = Field(
+        env="EMBEDDINGS_TYPE",
+        description="Embeddings type for vector store"
+    )
     
     # Use SettingsConfigDict instead of Config class
     model_config = SettingsConfigDict(
