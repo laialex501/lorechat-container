@@ -1,16 +1,31 @@
-"""
-LLM service implementations that abstract provider-specific details.
-This abstraction allows us to easily switch between different LLM providers
-while maintaining consistent behavior across the application.
-"""
-
+"""LLM service implementations."""
 from abc import ABC, abstractmethod
-from typing import AsyncGenerator, List, Union
+from enum import Enum
+from typing import Generator, List
 
 from app.config.settings import settings
 from langchain.schema import BaseMessage
 from langchain.schema.messages import AIMessageChunk
-from langchain_community.chat_models import BedrockChat, ChatOpenAI
+from langchain_aws.chat_models.bedrock import ChatBedrock
+from langchain_community.chat_models import ChatOpenAI
+
+
+class BaseModel(str, Enum):
+    """Base class for LLM model enums"""
+    pass
+
+
+class OpenAIModel(BaseModel):
+    """Available OpenAI models."""
+    GPT35_TURBO = "gpt-3.5-turbo"
+    GPT35_TURBO_16K = "gpt-3.5-turbo-16k"
+    GPT35_MINI = "gpt-3.5-turbo-0125"
+
+
+class ClaudeModel(BaseModel):
+    """Available Claude models via Bedrock."""
+    CLAUDE3_SONNET = "anthropic.claude-3-sonnet-20240229-v1:0"
+    CLAUDE3_HAIKU = "anthropic.claude-3-haiku-20240307-v1:0"
 
 
 class BaseLLMService(ABC):
@@ -19,24 +34,22 @@ class BaseLLMService(ABC):
     This abstraction enables easy provider switching and testing by
     defining a common contract that all LLM implementations must follow.
     """
-
+    
     @abstractmethod
-    async def generate_response(
+    def generate_response(
         self,
         messages: List[BaseMessage],
-        stream: bool = False,
         **kwargs
-    ) -> Union[str, AsyncGenerator[str, None]]:
+    ) -> Generator:
         """
-        Generate a response from the LLM based on conversation history.
+        Generate a streaming response from the LLM.
         
         Args:
             messages: List of conversation messages
-            stream: Whether to stream the response
             **kwargs: Additional provider-specific parameters
             
         Returns:
-            Either a complete response string or an async generator of chunks
+            Generator yielding response chunks
         """
         pass
 
@@ -48,94 +61,72 @@ class OpenAIService(BaseLLMService):
     and more consistent responses in chat-based applications.
     """
 
-    def __init__(self):
-        # Validate configuration before initialization to fail fast
-        if not settings.is_openai:
-            raise ValueError("OpenAI is not configured as the LLM provider")
-        
+    def __init__(self, model: OpenAIModel = OpenAIModel.GPT35_TURBO):
         if not settings.OPENAI_API_KEY:
             raise ValueError("OpenAI API key is not configured")
-
-        # Initialize with controlled parameters for consistent output
         self.llm = ChatOpenAI(
-            model=settings.OPENAI_MODEL,
+            model=model.value,
             temperature=settings.TEMPERATURE,
-            max_tokens=settings.MAX_RESPONSE_TOKENS,
+            streaming=True,
             api_key=settings.OPENAI_API_KEY
         )
 
-    async def generate_response(
+    def generate_response(
         self,
         messages: List[BaseMessage],
-        stream: bool = False,
         **kwargs
-    ) -> Union[str, AsyncGenerator[str, None]]:
-        """Generate a response using OpenAI's chat models."""
-        if not stream:
-            response = await self.llm.agenerate([messages])
-            return response.generations[0][0].text
-        
-        async def stream_response() -> AsyncGenerator[str, None]:
-            async for chunk in self.llm.astream(messages):
-                if isinstance(chunk, AIMessageChunk):
-                    yield chunk.content
-        
-        return stream_response()
+    ) -> Generator:
+        """Generate a streaming response using OpenAI."""
+        for chunk in self.llm.stream(messages):
+            if isinstance(chunk, AIMessageChunk):
+                yield chunk.content
 
 
 class BedrockService(BaseLLMService):
     """
     Amazon Bedrock service implementation for enterprise-grade deployment.
-    Uses BedrockChat for better integration with AWS services and
+    Uses ChatBedrock for better integration with AWS services and
     to leverage existing AWS authentication mechanisms.
     """
 
-    def __init__(self):
-        # Validate configuration before initialization to fail fast
-        if not settings.is_bedrock:
-            raise ValueError("Bedrock is not configured as the LLM provider")
-        
+    def __init__(self, model: ClaudeModel = ClaudeModel.CLAUDE3_SONNET):
         if not settings.AWS_DEFAULT_REGION:
             raise ValueError("AWS region is not configured")
-
-        # Initialize with enterprise-focused configuration
-        self.llm = BedrockChat(
-            model_id=settings.AWS_BEDROCK_MODEL_ID,
+        self.llm = ChatBedrock(
+            model_id=model.value,
             model_kwargs={
                 "temperature": settings.TEMPERATURE,
                 "max_tokens": settings.MAX_RESPONSE_TOKENS
             },
-            region_name=settings.AWS_DEFAULT_REGION
+            region_name=settings.AWS_DEFAULT_REGION,
+            streaming=True
         )
 
-    async def generate_response(
+    def generate_response(
         self,
         messages: List[BaseMessage],
-        stream: bool = False,
         **kwargs
-    ) -> Union[str, AsyncGenerator[str, None]]:
-        """Generate a response using AWS Bedrock."""
-        if not stream:
-            response = await self.llm.agenerate([messages])
-            return response.generations[0][0].text
-            
-        async def stream_response() -> AsyncGenerator[str, None]:
-            async for chunk in self.llm.astream(messages):
-                if isinstance(chunk, AIMessageChunk):
-                    yield chunk.content
-        
-        return stream_response()
+    ) -> Generator:
+        """Generate a streaming response using AWS Bedrock."""
+        for chunk in self.llm.stream(messages):
+            if isinstance(chunk, AIMessageChunk):
+                yield chunk.content
 
 
-def get_llm_service() -> BaseLLMService:
-    """
-    Factory function to get the configured LLM service.
-    This pattern allows for runtime provider selection and
-    ensures proper initialization based on configuration.
-    """
-    if settings.is_openai:
-        return OpenAIService()
-    elif settings.is_bedrock:
-        return BedrockService()
+def get_llm_service(
+    provider: str = "bedrock",
+    model_name: BaseModel = ClaudeModel.CLAUDE3_SONNET
+) -> BaseLLMService:
+    """Factory function to get LLM service."""
+    provider = provider.lower()
+    
+    if provider == "openai":
+        model = model_name or OpenAIModel.GPT35_TURBO
+        return OpenAIService(model)
+    
+    elif provider == "bedrock":
+        model = model_name or ClaudeModel.CLAUDE3_SONNET
+        return BedrockService(model)
+    
     else:
-        raise ValueError(f"Unknown LLM provider: {settings.LLM_PROVIDER}")
+        raise ValueError(f"Unknown provider: {provider}")
