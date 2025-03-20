@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+    <html xmlns="http://www.w3.org/1999/xhtml" lang="en-US"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8" /><title>Cloud-to-cloud device onboarding - Managed integrations for AWS IoT Device Management</title><meta name="viewport" content="width=device-width,initial-scale=1" /><meta name="assets_root" content="/assets" /><meta name="target_state" content="getting-started-third-party-cloud-device-onboarding" /><meta name="default_state" content="getting-started-third-party-cloud-device-onboarding" /><link rel="icon" type="image/ico" href="/assets/images/favicon.ico" /><link rel="shortcut icon" type="image/ico" href="/assets/images/favicon.ico" /><link rel="canonical" href="https://docs.aws.amazon.com/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" /><meta name="description" content="The following steps outline the workflow for onboarding a cloud device from a third-party cloud provider to managed integrations." /><meta name="deployment_region" content="IAD" /><meta name="product" content="Managed integrations for AWS IoT Device Management" /><meta name="guide" content="Developer Guide" /><meta name="abstract" content="Insert abstract text" /><meta name="guide-locale" content="en_us" /><meta name="tocs" content="toc-contents.json" /><link rel="canonical" href="https://docs.aws.amazon.com/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" /><link rel="alternative" href="https://docs.aws.amazon.com/id_id/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="id-id" /><link rel="alternative" href="https://docs.aws.amazon.com/id_id/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="id" /><link rel="alternative" href="https://docs.aws.amazon.com/de_de/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="de-de" /><link rel="alternative" href="https://docs.aws.amazon.com/de_de/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="de" /><link rel="alternative" href="https://docs.aws.amazon.com/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="en-us" /><link rel="alternative" href="https://docs.aws.amazon.com/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="en" /><link rel="alternative" href="https://docs.aws.amazon.com/es_es/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="es-es" /><link rel="alternative" href="https://docs.aws.amazon.com/es_es/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="es" /><link rel="alternative" href="https://docs.aws.amazon.com/fr_fr/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="fr-fr" /><link rel="alternative" href="https://docs.aws.amazon.com/fr_fr/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="fr" /><link rel="alternative" href="https://docs.aws.amazon.com/it_it/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="it-it" /><link rel="alternative" href="https://docs.aws.amazon.com/it_it/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="it" /><link rel="alternative" href="https://docs.aws.amazon.com/ja_jp/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="ja-jp" /><link rel="alternative" href="https://docs.aws.amazon.com/ja_jp/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="ja" /><link rel="alternative" href="https://docs.aws.amazon.com/ko_kr/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="ko-kr" /><link rel="alternative" href="https://docs.aws.amazon.com/ko_kr/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="ko" /><link rel="alternative" href="https://docs.aws.amazon.com/pt_br/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="pt-br" /><link rel="alternative" href="https://docs.aws.amazon.com/pt_br/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="pt" /><link rel="alternative" href="https://docs.aws.amazon.com/zh_cn/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="zh-cn" /><link rel="alternative" href="https://docs.aws.amazon.com/zh_tw/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="zh-tw" /><link rel="alternative" href="https://docs.aws.amazon.com/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" hreflang="x-default" /><meta name="feedback-item" content="IoT Docs" /><meta name="this_doc_product" content="Managed integrations for AWS IoT Device Management" /><meta name="this_doc_guide" content="Developer Guide" /><script defer="" src="/assets/r/vendor4.js?version=2021.12.02"></script><script defer="" src="/assets/r/vendor3.js?version=2021.12.02"></script><script defer="" src="/assets/r/vendor1.js?version=2021.12.02"></script><script defer="" src="/assets/r/awsdocs-common.js?version=2021.12.02"></script><script defer="" src="/assets/r/awsdocs-doc-page.js?version=2021.12.02"></script><link href="/assets/r/vendor4.css?version=2021.12.02" rel="stylesheet" /><link href="/assets/r/awsdocs-common.css?version=2021.12.02" rel="stylesheet" /><link href="/assets/r/awsdocs-doc-page.css?version=2021.12.02" rel="stylesheet" /><script async="" id="awsc-panorama-bundle" type="text/javascript" src="https://prod.pa.cdn.uis.awsstatic.com/panorama-nav-init.js" data-config="{'appEntity':'aws-documentation','region':'us-east-1','service':'iot-device-management'}"></script><meta id="panorama-serviceSubSection" value="Developer Guide" /><meta id="panorama-serviceConsolePage" value="Cloud-to-cloud device onboarding" /></head><body class="awsdocs awsui"><div class="awsdocs-container"><awsdocs-header></awsdocs-header><awsui-app-layout id="app-layout" class="awsui-util-no-gutters" ng-controller="ContentController as $ctrl" header-selector="awsdocs-header" navigation-hide="false" navigation-width="$ctrl.navWidth" navigation-open="$ctrl.navOpen" navigation-change="$ctrl.onNavChange($event)" tools-hide="$ctrl.hideTools" tools-width="$ctrl.toolsWidth" tools-open="$ctrl.toolsOpen" tools-change="$ctrl.onToolsChange($event)"><div id="guide-toc" dom-region="navigation"><awsdocs-toc></awsdocs-toc></div><div id="main-column" dom-region="content" tabindex="-1"><awsdocs-view class="awsdocs-view"><div id="awsdocs-content"><head><title>Cloud-to-cloud device onboarding - Managed integrations for AWS IoT Device Management</title><meta name="pdf" content="/pdfs/iot-mi/latest/devguide/iot-mi-dg.pdf#getting-started-third-party-cloud-device-onboarding" /><meta name="rss" content="aws-iot-managed-integrations-doc-history.rss" /><meta name="forums" content="https://repost.aws/tags/TATUn2JZUnTBihL4AamE-Y-g" /><meta name="feedback" content="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=IoT%20Docs&amp;topic_url=https://docs.aws.amazon.com/en_us/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" /><meta name="feedback-yes" content="feedbackyes.html?topic_url=https://docs.aws.amazon.com/en_us/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" /><meta name="feedback-no" content="feedbackno.html?topic_url=https://docs.aws.amazon.com/en_us/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html" /><meta name="keywords" content="managed integrations,Managed integrations,IoT,device,Begin" /><script type="application/ld+json">
+{
+    "@context" : "https://schema.org",
+    "@type" : "BreadcrumbList",
+    "itemListElement" : [
+      {
+        "@type" : "ListItem",
+        "position" : 1,
+        "name" : "AWS",
+        "item" : "https://aws.amazon.com"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 2,
+        "name" : "Managed integrations",
+        "item" : "https://docs.aws.amazon.com/iot-device-management/index.html"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 3,
+        "name" : "Developer Guide",
+        "item" : "https://docs.aws.amazon.com/iot-mi/latest/devguide"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 4,
+        "name" : "Getting started with managed integrations for AWS IoT Device Management",
+        "item" : "https://docs.aws.amazon.com/iot-mi/latest/devguide/getting-started.html"
+      },
+      {
+        "@type" : "ListItem",
+        "position" : 5,
+        "name" : "Cloud-to-cloud device onboarding",
+        "item" : "https://docs.aws.amazon.com/iot-mi/latest/devguide/getting-started.html"
+      }
+    ]
+}
+</script></head><body><div id="main"><div style="display: none"><a href="/pdfs/iot-mi/latest/devguide/iot-mi-dg.pdf#getting-started-third-party-cloud-device-onboarding" target="_blank" rel="noopener noreferrer" title="Open PDF"></a></div><div id="breadcrumbs" class="breadcrumb"><a href="/index.html">Documentation</a><a href="/iot-device-management/index.html">Managed integrations</a><a href="what-is-managedintegrations.html">Developer Guide</a></div><div id="page-toc-src"><a href="#3Pcloud-mobile-app-coordination">Mobile application coordination
+     (Mandatory)</a><a href="#3Pcloud-configure-encryption-key">Configure Encryption Key (Optional)</a><a href="#3Pcloud-account-linking">Account Linking (Mandatory)</a><a href="#3Pcloud-device-discovery">Device Discovery (Mandatory)</a><a href="#3Pcloud-device-command-and-control">Device Command and Control</a><a href="#third-party-cloud-device-onboarding-api-index">API Index</a></div><div id="main-content" class="awsui-util-container"><div id="main-col-body"><awsdocs-language-banner data-service="$ctrl.pageService"></awsdocs-language-banner><awsui-alert class="awsdocs-page-banner awsui-util-mb-l"><p>Managed integrations for AWS IoT Device Management is in preview release and is subject to change. For access, contact us from the <a href="https://console.aws.amazon.com/iot/home#/managed-integrations/intro" rel="noopener noreferrer" target="_blank"><span>managed integrations console</span><awsui-icon class="awsdocs-link-icon" name="external"></awsui-icon></a>.</p></awsui-alert><h1 class="topictitle" id="getting-started-third-party-cloud-device-onboarding">Cloud-to-cloud device
+    onboarding</h1><div class="awsdocs-page-header-container"><awsdocs-page-header></awsdocs-page-header><awsdocs-filter-selector id="awsdocs-filter-selector"></awsdocs-filter-selector></div><p>The following steps outline the workflow for onboarding a cloud device from a third-party
+   cloud provider to managed integrations.</p><div class="highlights" id="inline-topiclist"><h6>Topics</h6><ul><li><p><a href="#3Pcloud-mobile-app-coordination">Mobile application coordination
+     (Mandatory)</a></p></li><li><p><a href="#3Pcloud-configure-encryption-key">Configure Encryption Key (Optional)</a></p></li><li><p><a href="#3Pcloud-account-linking">Account Linking (Mandatory)</a></p></li><li><p><a href="#3Pcloud-device-discovery">Device Discovery (Mandatory)</a></p></li><li><p><a href="#3Pcloud-device-command-and-control">Device Command and Control</a></p></li><li><p><a href="#third-party-cloud-device-onboarding-api-index">API Index</a></p></li></ul></div>
+   <h2 id="3Pcloud-mobile-app-coordination">Mobile application coordination
+     (Mandatory)</h2>
+   <p>Providing the end-user with a mobile application facilitates a consistent user experience
+    for managing their devices directly from their mobile device. Leveraging an intuitive user
+    interface in the mobile application, the end-user can call various managed integrations APIs to control,
+    manage, and operate their devices. The mobile application can assist with device discovery by
+    routing device metadata such as owner ID, supported device protocols, and device
+    capabilities.</p>
+   <p>Additionally, a mobile application can assist with linking the AWS account in managed integrations
+    with the third-party cloud containing the end-user's account and device data for a third-party
+    cloud device. Account linking ensures a seamless routing of device data between the end-user's
+    mobile application, the AWS account in managed integrations, and the third-party cloud.</p>
+   
+   <h2 id="3Pcloud-configure-encryption-key">Configure Encryption Key (Optional)</h2>
+   <p>Security is of paramount importance for data routed between the end-user, managed integrations, and
+    third-party clouds. One of the methods we support to protect your device data is end-to-end
+    encryption leveraging a secure encryption key for routing your data.</p>
+   <p>As a customer of managed integrations, you have the following two options for using encryption
+    keys:</p>
+   <div class="itemizedlist">
+     
+     
+   <ul class="itemizedlist"><li class="listitem">
+     <p>Use the default managed integrations-managed encryption key.</p>
+    </li><li class="listitem">
+     <p>Provide an AWS KMS key that you created.</p>
+    </li></ul></div>
+   <p>For more information on the AWS KMS service, see <a href="https://docs.aws.amazon.com/kms/latest/developerguide/overview.html">Key management
+     service (KMS)</a></p>
+   <p>Calling the <code class="code">PutDefaultEncryptionConfiguration</code> API grants you access to update
+    which encryption key option you want to use. By default, managed integrations uses the default managed integrations
+    managed encryption key. You can update your encryption key configuration at any time using the
+     <code class="code">PutDefaultEncryptionConfiguration</code> API.</p>
+   <p>Additionally, calling the <code class="code">DescribeDefaultEncryptionConfiguration</code> API command
+    will return information about the encryption configuration for the AWS account in the default or
+    specified region.</p>
+   <p>APIs used in this step:</p>
+   <div class="itemizedlist">
+     
+     
+   <ul class="itemizedlist"><li class="listitem">
+     <p><code class="code">PutDefaultEncryptionConfiguration</code></p>
+    </li><li class="listitem">
+     <p><code class="code">DescribeDefaultEncryptionConfiguration</code></p>
+    </li></ul></div>
+   
+   <h2 id="3Pcloud-account-linking">Account Linking (Mandatory)</h2>
+   <p>Account linking is the process that links your cloud environment to the third-party
+    provider's cloud using the end-user's credentials. This link is required for routing device
+    commands and other device-related data between your cloud environment and the end-user's mobile
+    application.</p>
+   <p>To initiate account linking, the end-user will send the <code class="code">StartAccountLinking</code>
+    API command in the mobile application supporting the cloud-connected device. The third-party
+    cloud will return a URL to the mobile application and prompt the end-user to enter their
+    third-party cloud login credentials and authorize the account linking request between your cloud
+    environment and the end-user's mobile application.</p>
+   <p>APIs used in this step:</p>
+   <div class="itemizedlist">
+     
+   <ul class="itemizedlist"><li class="listitem">
+     <p><code class="code">StartAccountLinking</code></p>
+    </li></ul></div>
+   
+   <h2 id="3Pcloud-device-discovery">Device Discovery (Mandatory)</h2>
+   <p>After account linking is completed, the <code class="code">StartDeviceDiscovery</code> API will
+    automatically be called. The third-party cloud will publish a list of devices associated with
+    the end-user's third-party account to the MQTT topic <code class="code">DevicesToApprove</code>. The end-user
+    will approve selected devices in their mobile application for device registration with
+    managed integrations. Then a managed integrations Managed Thing will be auto-generated for each registered device
+    using the <code class="code">CreateManagedThing</code> API command. An managed integrations managed thing is a digital
+    representation of the physical device stored in managed integrations.</p>
+   <p>APIs used in this step:</p>
+   <div class="itemizedlist">
+     
+     
+   <ul class="itemizedlist"><li class="listitem">
+     <p><code class="code">StartDeviceDiscovery</code></p>
+    </li><li class="listitem">
+     <p><code class="code">CreateManagedThing</code></p>
+    </li></ul></div>
+   
+   <h2 id="3Pcloud-device-command-and-control">Device Command and Control</h2>
+   <p>Once device onboarding is completed, you can begin sending and receiving device commands
+    for managing your devices. The following list illustrates some of the scenarios for managing
+    your devices:</p>
+   <div class="itemizedlist">
+     
+     
+     
+   <ul class="itemizedlist"><li class="listitem">
+     <p>Sending device commands: Send and receive commands from your devices for managing the
+      lifecycle of the devices.</p>
+     <div class="itemizedlist">
+       
+      
+      
+     <ul class="itemizedlist"><li class="listitem">
+       <p>Sampling of APIs used: <code class="code">SendManagedThingCommand</code>.</p>
+      </li></ul></div>
+    </li><li class="listitem">
+     <p>Updating device state: Update the state of the device based on the device lifecycle and
+      device commands sent.</p>
+     <div class="itemizedlist">
+       
+      
+     <ul class="itemizedlist"><li class="listitem">
+       <p>Sampling of APIs used: <code class="code">GetManagedThingState</code>,
+         <code class="code">ListManagedThingState</code>, <code class="code">UpdateManagedThing</code>, and
+         <code class="code">DeleteManagedThing</code>.</p>
+      </li></ul></div>
+    </li><li class="listitem">
+     <p>Receive Device Events: Receive events about a C2C device from a third-party cloud
+      provider that are sent to managed integrations.</p>
+     <div class="itemizedlist">
+       
+      
+     <ul class="itemizedlist"><li class="listitem">
+       <p>Sampling of APIs used: <code class="code">SendDeviceEvent</code>, <code class="code">CreateLogLevel</code>,
+         <code class="code">CreateNotificationConfiguration</code>.</p>
+      </li></ul></div>
+    </li></ul></div>
+   
+   <p>APIs used in this step:</p>
+   <div class="itemizedlist">
+     
+     
+     
+     
+     
+     
+     
+     
+    
+   <ul class="itemizedlist"><li class="listitem">
+     <p><code class="code">SendManagedThingCommand</code></p>
+    </li><li class="listitem">
+     <p><code class="code">GetManagedThingState</code></p>
+    </li><li class="listitem">
+     <p><code class="code">ListManagedThingState</code></p>
+    </li><li class="listitem">
+     <p><code class="code">UpdateManagedThing</code></p>
+    </li><li class="listitem">
+     <p><code class="code">DeleteManagedThing</code></p>
+    </li><li class="listitem">
+     <p><code class="code">SendDeviceEvent</code></p>
+    </li><li class="listitem">
+     <p><code class="code">CreateLogLevel</code></p>
+    </li><li class="listitem">
+     <p><code class="code">CreateNotificationConfiguration</code></p>
+    </li></ul></div>
+   
+   <h2 id="third-party-cloud-device-onboarding-api-index">API Index</h2>
+   <p>For more information on the managed integrations APIs, see the 
+    <em>managed integrations API Reference Guide</em>.</p>
+   <p>For more information on the AWS IoT Core APIs, see the <a href="https://docs.aws.amazon.com/iot/latest/apireference/Welcome.html"><em>AWS IoT Core API
+      Reference Guide</em></a>.</p>
+  <awsdocs-copyright class="copyright-print"></awsdocs-copyright><awsdocs-thumb-feedback right-edge="{{$ctrl.thumbFeedbackRightEdge}}"></awsdocs-thumb-feedback></div><noscript><div><div><div><div id="js_error_message"><p><img src="https://d1ge0kk1l5kms0.cloudfront.net/images/G/01/webservices/console/warning.png" alt="Warning" /> <strong>Javascript is disabled or is unavailable in your browser.</strong></p><p>To use the Amazon Web Services Documentation, Javascript must be enabled. Please refer to your browser's Help pages for instructions.</p></div></div></div></div></noscript><div id="main-col-footer" class="awsui-util-font-size-0"><div id="doc-conventions"><a target="_top" href="/general/latest/gr/docconventions.html">Document Conventions</a></div><div class="prev-next"><div id="previous" class="prev-link" accesskey="p" href="./getting-started-hub-connected-device-onboarding.html">Hub-connected device
+    onboarding</div><div id="next" class="next-link" accesskey="n" href="./concept-chapter-servicename.html">Device provisioning</div></div></div><awsdocs-page-utilities></awsdocs-page-utilities></div><div id="quick-feedback-yes" style="display: none;"><div class="title">Did this page help you? - Yes</div><div class="content"><p>Thanks for letting us know we're doing a good job!</p><p>If you've got a moment, please tell us what we did right so we can do more of it.</p><p><awsui-button id="fblink" rel="noopener noreferrer" target="_blank" text="Feedback" click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=IoT Docs&amp;topic_url=https://docs.aws.amazon.com/en_us/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html"></awsui-button></p></div></div><div id="quick-feedback-no" style="display: none;"><div class="title">Did this page help you? - No</div><div class="content"><p>Thanks for letting us know this page needs work. We're sorry we let you down.</p><p>If you've got a moment, please tell us how we can make the documentation better.</p><p><awsui-button id="fblink" rel="noopener noreferrer" target="_blank" text="Feedback" click="linkClick($event)" href="https://docs.aws.amazon.com/forms/aws-doc-feedback?hidden_service_name=IoT Docs&amp;topic_url=https://docs.aws.amazon.com/en_us/iot-mi/latest/devguide/getting-started-third-party-cloud-device-onboarding.html"></awsui-button></p></div></div></div></body></div></awsdocs-view><div class="page-loading-indicator" id="page-loading-indicator"><awsui-spinner size="large"></awsui-spinner></div></div><div id="tools-panel" dom-region="tools"><awsdocs-tools-panel id="awsdocs-tools-panel"></awsdocs-tools-panel></div></awsui-app-layout><awsdocs-cookie-banner class="doc-cookie-banner"></awsdocs-cookie-banner></div></body></html>

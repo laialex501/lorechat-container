@@ -24,8 +24,18 @@ class OpenAIModel(BaseModel):
 
 class ClaudeModel(BaseModel):
     """Available Claude models via Bedrock."""
-    CLAUDE3_SONNET = "anthropic.claude-3-sonnet-20240229-v1:0"
     CLAUDE3_HAIKU = "anthropic.claude-3-haiku-20240307-v1:0"
+    CLAUDE3_SONNET = "anthropic.claude-3-sonnet-20240229-v1:0"
+
+
+class TitanModel(BaseModel):
+    TITAN_EMBED_V2 = "amazon.titan-embed-text-v2:0"
+
+
+class LLMProvider(str, Enum):
+    """Available LLM providers."""
+    OPENAI = "OpenAi"
+    Anthropic = "Anthropic"
 
 
 class BaseLLMService(ABC):
@@ -89,7 +99,7 @@ class BedrockService(BaseLLMService):
     to leverage existing AWS authentication mechanisms.
     """
 
-    def __init__(self, model: ClaudeModel = ClaudeModel.CLAUDE3_SONNET):
+    def __init__(self, model: ClaudeModel = ClaudeModel.CLAUDE3_HAIKU):
         if not settings.AWS_DEFAULT_REGION:
             raise ValueError("AWS region is not configured")
         self.llm = ChatBedrock(
@@ -114,17 +124,16 @@ class BedrockService(BaseLLMService):
 
 
 def get_llm_service(
-    provider: str = "bedrock",
+    provider: LLMProvider = LLMProvider.Anthropic,
     model_name: BaseModel = ClaudeModel.CLAUDE3_SONNET
 ) -> BaseLLMService:
     """Factory function to get LLM service."""
-    provider = provider.lower()
     
-    if provider == "openai":
+    if provider == LLMProvider.OPENAI:
         model = model_name or OpenAIModel.GPT35_TURBO
         return OpenAIService(model)
     
-    elif provider == "bedrock":
+    elif provider == LLMProvider.Anthropic:
         model = model_name or ClaudeModel.CLAUDE3_SONNET
         return BedrockService(model)
     

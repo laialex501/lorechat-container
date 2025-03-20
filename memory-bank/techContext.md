@@ -45,20 +45,22 @@ graph TD
     A[LLM Service] --> B[Provider Factory]
     B --> C[OpenAI]
     B --> D[Bedrock]
+    B --> E[Future Providers]
 ```
 
 ### Vector Store
 ```mermaid
 graph TD
     A[Vector Store] --> B[FAISS Local]
-    A --> C[Future AWS Store]
-    D[Sync Ops] --> A
+    C[Sync Ops] --> A
 ```
 
 ## Technical Constraints
 - Performance: Memory limits, response times, concurrent users
 - Security: API keys, env isolation, network security
 - Development: Framework limits, Docker constraints, code quality
+- LLM: Factory-based provider selection, API compatibility
+- Vector Store: Factory-based implementation, synchronous operations
 
 ## Monitoring and Testing
 - Logging: DEBUG to ERROR, file/console, rotation, structured

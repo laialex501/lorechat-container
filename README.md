@@ -59,6 +59,14 @@ aws bedrock list-foundation-models --region us-west-2
 
 ## Development Setup
 
+### Vector Store Initialization
+In development mode, the application automatically initializes a FAISS vector store with content from the `sampledata/` directory when first launched. This provides an initial dataset for testing and development.
+
+- The vector store is created at the path specified by `VECTOR_STORE_PATH` (defaults to `dev_vectorstore/faiss`)
+- Initialization only occurs if no existing vector store is found
+- Only HTML files from `sampledata/` are processed
+- The vector store persists between application restarts
+
 1. Clone the repository:
 ```bash
 git clone <repository-url>
@@ -68,12 +76,10 @@ cd SiteChat
 2. Create a `.env` file in the project root based on `.env.dev`:
 ```bash
 # Environment
-APP_ENV=development
-APP_DEBUG=true
+ENV=development
+DEBUG=true
 LOG_LEVEL=INFO
-
-# LLM Configuration
-LLM_PROVIDER=bedrock  # Options: openai, bedrock
+VECTOR_STORE_PATH=local_vectorstore
 
 # OpenAI Settings (required if using openai provider)
 OPENAI_API_KEY=your_api_key_here
@@ -81,7 +87,6 @@ OPENAI_MODEL=gpt-3.5-turbo
 
 # AWS Bedrock Settings (required if using bedrock provider)
 AWS_DEFAULT_REGION=us-west-2  # Your AWS region
-AWS_BEDROCK_MODEL_ID=anthropic.claude-3-sonnet-20240229-v1:0
 # Note: AWS credentials should be configured via aws configure
 ```
 

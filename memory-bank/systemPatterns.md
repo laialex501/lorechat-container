@@ -29,7 +29,7 @@ graph TD
     subgraph Backend
         C[Chat Service]
         D[LLM Service]
-        E[Vector Store]
+        E[Static Vector Store]
     end
     
     subgraph Infrastructure
@@ -49,9 +49,8 @@ graph TD
 ## Core Design Patterns
 
 ### 1. Service Layer
-- Abstract interfaces for LLM and vector store
-- Provider-agnostic implementations
-- Factory-based service instantiation
+- Abstract interfaces for LLM with factory-based instantiation
+- Factory-based vector store implementation
 - Streaming response handling
 
 ### 2. Data Flow
@@ -65,7 +64,7 @@ sequenceDiagram
     
     U->>UI: Question
     UI->>C: Process
-    C->>V: Get Context
+    C->>V: Get Context (Sync)
     V-->>C: Context
     C->>L: Generate
     L-->>UI: Stream Response

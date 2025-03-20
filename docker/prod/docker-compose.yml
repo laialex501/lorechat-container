@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  sitechat:
+    build:
+      context: ../..
+      dockerfile: docker/prod/Dockerfile
+    ports:
+      - "8501:8501"
+    environment:
+      - ENV=production
+      - LOG_LEVEL=INFO
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8501/_stcore/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped

@@ -1,4 +1,4 @@
-# Use Python 3.9 as base image
+# Use Python 3.9 slim as base image for smaller size
 FROM python:3.9-slim
 
 # Set environment variables
@@ -11,12 +11,10 @@ ENV PYTHONUNBUFFERED=1 \
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies (minimal set for production)
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    build-essential \
     curl \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements file
@@ -28,14 +26,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Copy .env.dev to .env
-COPY .env.dev .env
-
 # Create necessary directories
-RUN mkdir -p logs faiss
+RUN mkdir -p logs
 
 # Set permissions
-RUN chmod -R 777 logs faiss
+RUN chmod -R 755 logs
 
 # Expose Streamlit port
 EXPOSE 8501

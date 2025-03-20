@@ -26,7 +26,7 @@ class ChatRole(str, Enum):
 class VectorStoreType(str, Enum):
     """Vector store types."""
     FAISS = "faiss"
-    AWS = "aws"
+    OPENSEARCH = "opensearch"
 
 
 class LLMProvider(str, Enum):

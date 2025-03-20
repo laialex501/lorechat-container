@@ -32,6 +32,9 @@ ENV/
 *.swo
 *~
 
+# Vectorstore
+local_vectorstore/
+
 # Logs
 logs/
 *.log
@@ -39,9 +42,6 @@ logs/
 # Environment variables
 .env
 .env.*
-
-# Vector store
-vectorstore/
 
 # Testing
 .coverage
@@ -78,3 +78,7 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Cline
+.clinerules
+memory-bank/

@@ -1,7 +1,8 @@
 """Main chat interface page for SiteChat."""
 import streamlit as st
 from app.chat.service import ChatMessage, ChatService
-from app.services.llm import ClaudeModel, OpenAIModel, get_llm_service
+from app.services.llm import (ClaudeModel, LLMProvider, OpenAIModel,
+                              get_llm_service)
 from app.services.vectorstore import get_vector_store
 
 
@@ -10,16 +11,19 @@ def initialize_session_state():
     if "messages" not in st.session_state:
         st.session_state.messages = []
     if "provider" not in st.session_state:
-        st.session_state.provider = "bedrock"
+        st.session_state.provider = LLMProvider.Anthropic
     if "model_name" not in st.session_state:
-        st.session_state.model_name = ClaudeModel.CLAUDE3_SONNET
+        st.session_state.model_name = ClaudeModel.CLAUDE3_HAIKU
 
 
 def get_available_models():
     """Get available models based on selected provider."""
-    if st.session_state.provider == "bedrock":
+    if st.session_state.provider == LLMProvider.Anthropic:
         return {m: m.name.replace('_', ' ').title() for m in ClaudeModel}
-    return {m: m.name.replace('_', ' ').title() for m in OpenAIModel}
+    elif st.session_state.provider == LLMProvider.OPENAI:
+        return {m: m.name.replace('_', ' ').title() for m in OpenAIModel}
+    else:
+        return {}
 
 
 def render_chat_page():
@@ -39,7 +43,8 @@ def render_chat_page():
     with col1:
         st.selectbox(
             "Provider",
-            ["bedrock", "openai"],
+            options=LLMProvider,
+            format_func=lambda x: x.title(),
             key="provider",
             on_change=lambda: setattr(
                 st.session_state,
