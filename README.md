@@ -42,7 +42,7 @@ aws configure
 Enter your AWS credentials when prompted:
 - AWS Access Key ID
 - AWS Secret Access Key
-- Default region (e.g., us-west-2)
+- Default region (e.g., us-east-1)
 - Default output format (json)
 
 3. Enable Amazon Bedrock Model Access:
@@ -54,7 +54,7 @@ Enter your AWS credentials when prompted:
 
 4. Verify Bedrock access:
 ```bash
-aws bedrock list-foundation-models --region us-west-2
+aws bedrock list-foundation-models --region us-east-1
 ```
 
 ## Development Setup
@@ -86,7 +86,7 @@ OPENAI_API_KEY=your_api_key_here
 OPENAI_MODEL=gpt-3.5-turbo
 
 # AWS Bedrock Settings (required if using bedrock provider)
-AWS_DEFAULT_REGION=us-west-2  # Your AWS region
+AWS_DEFAULT_REGION=us-east-1  # Your AWS region
 # Note: AWS credentials should be configured via aws configure
 ```
 

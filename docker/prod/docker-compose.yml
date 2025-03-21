@@ -9,7 +9,9 @@ services:
       - "8501:8501"
     environment:
       - ENV=production
+      - DEBUG=false
       - LOG_LEVEL=INFO
+      - LOG_FILE=logs/sitechat.log
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8501/_stcore/health || exit 1"]
       interval: 30s

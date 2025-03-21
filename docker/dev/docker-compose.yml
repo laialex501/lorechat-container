@@ -16,7 +16,7 @@ services:
       - DEBUG=true
       - LOG_LEVEL=INFO
       - LOG_FILE=logs/sitechat.log
-      - AWS_DEFAULT_REGION=us-west-2
+      - AWS_DEFAULT_REGION=us-east-1
       - VECTOR_STORE_PATH=dev_vectorstore/faiss
       - PYTHONPATH=/app
     healthcheck:

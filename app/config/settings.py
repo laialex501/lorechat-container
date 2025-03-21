@@ -50,7 +50,7 @@ class Settings(BaseSettings):
     
     # AWS Bedrock Settings - Required for AWS integration
     AWS_DEFAULT_REGION: str = Field(
-        "us-west-2",
+        "us-east-1",
         env="AWS_DEFAULT_REGION"
     )
     
