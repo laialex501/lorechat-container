@@ -6,7 +6,7 @@ from app.config.constants import (CHUNK_OVERLAP, CHUNK_SIZE,
                                   MAX_CONCURRENT_REQUESTS, MAX_HISTORY_LENGTH,
                                   MAX_RESPONSE_TOKENS, SYSTEM_PROMPT,
                                   TEMPERATURE, TOP_K, ChatRole, Environment,
-                                  LLMProvider, LogLevel, VectorStoreType)
+                                  LLMProvider, LogLevel)
 from app.config.settings import Settings, settings
 
 __all__ = [
@@ -16,7 +16,6 @@ __all__ = [
     "Environment",
     "LLMProvider",
     "LogLevel",
-    "VectorStoreType",
     # Constants
     "MAX_HISTORY_LENGTH",
     "SYSTEM_PROMPT",

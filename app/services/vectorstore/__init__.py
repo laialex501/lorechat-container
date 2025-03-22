@@ -1,9 +1,16 @@
 """Vector store service package exports."""
-from app.services.vectorstore.service import (BaseVectorStoreService,
-                                              FAISSService, get_vector_store)
+from app.services.vectorstore.base import (BaseVectorStoreService,
+                                           VectorStoreProvider)
+from app.services.vectorstore.faiss_service import FAISSService
+from app.services.vectorstore.opensearch_service import OpenSearchService
+from app.services.vectorstore.upstash_service import UpstashService
+from app.services.vectorstore.vectorstore_factory import VectorStoreFactory
 
 __all__ = [
     "BaseVectorStoreService",
     "FAISSService",
-    "get_vector_store",
+    "OpenSearchService",
+    "UpstashService",
+    "VectorStoreProvider",
+    "VectorStoreFactory",
 ]

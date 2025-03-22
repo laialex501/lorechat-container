@@ -1,9 +1,9 @@
 """Main chat interface page for SiteChat."""
 import streamlit as st
+from app import logger
 from app.chat.service import ChatMessage, ChatService
-from app.services.llm import (ClaudeModel, LLMProvider, OpenAIModel,
-                              get_llm_service)
-from app.services.vectorstore import get_vector_store
+from app.services.llm import ClaudeModel, LLMFactory, LLMProvider, OpenAIModel
+from app.services.vectorstore import VectorStoreFactory
 
 
 def initialize_session_state():
@@ -28,6 +28,7 @@ def get_available_models():
 
 def render_chat_page():
     """Render the main chat interface."""
+    logger.info("Rendering chat page")
     st.set_page_config(
         page_title="SiteChat",
         page_icon="💬",
@@ -79,13 +80,17 @@ def render_chat_page():
         try:
             # Setup services
             chat_service = ChatService(
-                llm_service=get_llm_service(
-                    st.session_state.provider,
-                    st.session_state.model_name
+                llm_service=LLMFactory.create_llm_service(
+                    provider=st.session_state.provider,
+                    model_name=st.session_state.model_name
                 ),
-                vector_store=get_vector_store()
+                vector_store=VectorStoreFactory.get_vector_store()
             )
 
+            logger.info(
+                f"Processing message with {st.session_state.provider} - "
+                f"{st.session_state.model_name}"
+            )
             # Process message and stream response
             with st.chat_message("assistant"):
                 response = st.write_stream(
@@ -99,6 +104,7 @@ def render_chat_page():
                 )
 
         except Exception as e:
+            logger.error(f"Error processing message: {str(e)}", exc_info=True)
             st.error(f"Error: {str(e)}")
 
     # Instructions

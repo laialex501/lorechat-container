@@ -79,7 +79,7 @@ cd SiteChat
 ENV=development
 DEBUG=true
 LOG_LEVEL=INFO
-VECTOR_STORE_PATH=local_vectorstore
+VECTOR_STORE_PATH=dev_vectorstore/faiss
 
 # OpenAI Settings (required if using openai provider)
 OPENAI_API_KEY=your_api_key_here

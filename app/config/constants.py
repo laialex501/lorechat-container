@@ -23,12 +23,6 @@ class ChatRole(str, Enum):
     ASSISTANT = "assistant"
 
 
-class VectorStoreType(str, Enum):
-    """Vector store types."""
-    FAISS = "faiss"
-    OPENSEARCH = "opensearch"
-
-
 class LLMProvider(str, Enum):
     """LLM provider types."""
     OPENAI = "openai"

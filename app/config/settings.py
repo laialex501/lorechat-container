@@ -59,14 +59,39 @@ class Settings(BaseSettings):
         BASE_DIR / "dev_vectorstore" / "faiss",
         env="VECTOR_STORE_PATH"
     )
+    # Vector store implementation to use for this application
+    # Set this enviornmental variable to test different stores in local
+    VECTOR_STORE_PROVIDER: Literal["faiss", "opensearch", "upstash"] = Field(
+        "faiss",
+        env="VECTOR_STORE_PROVIDER"
+    )
+
+    # Embedding model configuration
+    EMBEDDING_DIMENSIONS: int = Field(
+        512,
+        env="EMBEDDING_DIMENSIONS",
+        description="Number of dimensions for embedding vectors"
+    )
+    BEDROCK_EMBEDDING_MODEL_ID: str = Field(
+        "amazon.titan-embed-text-v2:0",
+        env="BEDROCK_EMBEDDING_MODEL_ID",
+        description="AWS Bedrock model ID for embedding generation"
+    )
 
     # Vector store provider configuration
-    VECTOR_STORE_PROVIDER: Literal["faiss", "opensearch"] = Field(
-        "faiss",
-        env="VECTOR_STORE_PROVIDER",
-        description="Vector store provider (faiss or opensearch)"
-    )
     OPENSEARCH_ENDPOINT: Optional[str] = Field(None, env="OPENSEARCH_ENDPOINT")
+    
+    # Upstash Settings
+    UPSTASH_ENDPOINT_SECRET_NAME: Optional[str] = Field(
+        None,
+        env="UPSTASH_ENDPOINT_SECRET_NAME",
+        description="AWS Secrets Manager secret name for Upstash endpoint"
+    )
+    UPSTASH_TOKEN_SECRET_NAME: Optional[str] = Field(
+        None,
+        env="UPSTASH_TOKEN_SECRET_NAME",
+        description="AWS Secrets Manager secret name for Upstash token"
+    )
 
     # Use SettingsConfigDict instead of Config class
     model_config = SettingsConfigDict(
@@ -74,20 +99,18 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8"
     )
 
-    def validate_vector_store_config(self) -> None:
-        """
-        Validates vector store configuration.
-        Prevents runtime errors due to missing configuration.
-        """
-        if (self.VECTOR_STORE_PROVIDER == "opensearch"
-                and not self.OPENSEARCH_ENDPOINT):
-            msg = "OPENSEARCH_ENDPOINT is required when using OpenSearch as " \
-                + "vector store provider"
-            raise ValueError(msg)
+    # Optional Upstash Settings for local development
+    UPSTASH_ENDPOINT: Optional[str] = Field(
+        None,
+        env="UPSTASH_ENDPOINT",
+        description="Upstash endpoint URL"
+    )
+    UPSTASH_TOKEN: Optional[str] = Field(
+        None,
+        env="UPSTASH_TOKEN",
+        description="Upstash token"
+    )
 
 
 # Create global settings instance
 settings = Settings()
-
-# Validate vector store configuration
-settings.validate_vector_store_config()

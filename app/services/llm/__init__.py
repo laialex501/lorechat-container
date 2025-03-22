@@ -1,17 +1,17 @@
 """LLM service package exports."""
-from app.services.llm.service import (BaseLLMService, BaseModel,
-                                      BedrockService, ClaudeModel, LLMProvider,
-                                      OpenAIModel, OpenAIService, TitanModel,
-                                      get_llm_service)
+from app.services.llm.llm_base import (BaseLLMService, BaseModel, ClaudeModel,
+                                       LLMProvider, OpenAIModel)
+from app.services.llm.llm_bedrock_service import BedrockService
+from app.services.llm.llm_factory import LLMFactory
+from app.services.llm.llm_openai_service import OpenAIService
 
 __all__ = [
-    "BaseModel",
-    "ClaudeModel",
-    "TitanModel",
-    "OpenAIModel",
-    "BaseLLMService",
-    "BedrockService", 
-    "OpenAIService",
-    "LLMProvider",
-    "get_llm_service",
+    'BaseLLMService',
+    'BaseModel',
+    'BedrockService',
+    'ClaudeModel',
+    'LLMFactory',
+    'LLMProvider',
+    'OpenAIModel',
+    'OpenAIService',
 ]

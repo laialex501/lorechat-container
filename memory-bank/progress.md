@@ -1,13 +1,13 @@
 # SiteChat Progress Tracker
 
-## Project Status: Phase 2 - Core Implementation (Streaming Focus)
+## Project Status: Phase 2 - Core Implementation (Data Pipeline Focus)
 
 ### Development Progress
 ```mermaid
 pie title Component Completion
-    "Complete" : 85
-    "Streaming" : 10
-    "Optimization" : 5
+    "Complete" : 70
+    "Data Pipeline" : 20
+    "Testing" : 10
 ```
 
 ## Completed Features
@@ -15,73 +15,94 @@ pie title Component Completion
 ### Core Components
 - ✅ Chat service (async processing, context retrieval, history management)
 - ✅ LLM integration (OpenAI, Bedrock, provider factory)
-- ✅ Vector store (FAISS, synchronous operations)
 - ✅ Basic Streamlit UI
 - ✅ Development environment (Docker, hot reloading, debugging)
+- ✅ Vector store migration (OpenSearch removal, Upstash Vector setup)
 
 ### Recent Improvements
-- ✅ Streaming support in LLM service
-- ✅ Async generator implementation
-- ✅ Error handling and state management enhancements
+- ✅ Data Stack implementation in CDK
+- ✅ Bedrock model access permissions
+- ✅ Vector store factory with Upstash integration
+- ✅ Lambda function scaffolding
 
 ## In Progress
 
-### Streaming Refinement
-- 🔄 Optimize UI rerun mechanism
-- 🔄 Improve streaming error handling
-- 🔄 Enhance streaming state management
+### Data Pipeline Implementation
+- 🔄 Data processing Lambda function
+- 🔄 Vectorization Lambda function
+- 🔄 Upstash Vector integration testing
+- 🔄 Error handling and logging
 
 ### Testing
-- [ ] Streaming response tests
-- [ ] Performance benchmarks
-- [ ] Load testing
+- [ ] Lambda function unit tests
+- [ ] Data pipeline integration tests
+- [ ] Vector store performance tests
 - [ ] Error scenario coverage
 
 ### Optimization
-- [ ] Response streaming efficiency
-- [ ] Vector search concurrency
-- [ ] UI update frequency
+- [ ] Lambda cold start performance
+- [ ] Vector store query efficiency
 - [ ] Resource utilization
+- [ ] Pipeline throughput
 
 ## Known Issues
 
 ### High Priority
-- [ ] Async generator implementation refinement
-- [ ] UI rerun optimization
-- [ ] Streaming error handling improvements
-- [ ] State management enhancements
+- [ ] Lambda function error handling
+- [ ] Vector store connection management
+- [ ] Pipeline monitoring implementation
+- [ ] Integration test coverage
 
 ### Medium Priority
-- [ ] Reduce unnecessary UI updates
+- [ ] Lambda performance optimization
 - [ ] Improve resource usage
-- [ ] Add streaming performance monitoring
+- [ ] Add pipeline performance monitoring
+- [ ] Documentation updates
 
 ## Next Actions
 
 ### Immediate
-1. Update vectorstore references (remove remaining async operations)
-2. Complete streaming implementation refinements
-3. Optimize UI updates and resource usage
-4. Enhance error handling and recovery
+1. Complete Lambda function implementations
+2. Implement error handling and logging
+3. Set up monitoring and alerts
+4. Create integration tests
 
 ### Short-term
-1. Implement comprehensive streaming tests
-2. Optimize overall performance
-3. Improve UI responsiveness
-4. Update documentation (focus on streaming and optimization)
+1. Optimize Lambda performance
+2. Fine-tune vector store operations
+3. Enhance pipeline reliability
+4. Update documentation
 
 ## Testing Status
-- ✅ Basic service layer, component, and utility tests
-- 🔄 API and service interaction tests (partial)
-- [ ] Streaming end-to-end tests
+- ✅ Basic service layer tests
+- ✅ Vector store integration tests
+- 🔄 Lambda function tests (in progress)
+- [ ] Pipeline integration tests
 - [ ] Performance tests
 
 ## Key Metrics to Establish
-- Response times (initial display, streaming updates, context retrieval)
-- Resource usage (memory, CPU, vector store efficiency)
-- Scalability (streaming performance, concurrent users)
+- Pipeline processing times
+- Lambda execution metrics
+- Vector store performance
+- Error rates and recovery times
+- Resource utilization
 
 ## Next Phase Preparation
-- Documentation: Streaming implementation, UI optimization, error handling
-- Infrastructure: Performance monitoring, resource tracking, state management
-- Testing: Streaming responses, UI updates, error scenarios, performance
+- Documentation: Data pipeline, vector store integration, Lambda functions
+- Infrastructure: Monitoring, logging, alerting
+- Testing: Pipeline validation, performance testing, load testing
+- Operations: Maintenance procedures, troubleshooting guides
+
+## Infrastructure Updates
+- ✅ Data Stack creation
+- ✅ S3 bucket setup
+- ✅ Lambda function deployment
+- ✅ IAM role configuration
+- 🔄 Monitoring setup
+
+## Vector Store Migration
+- ✅ OpenSearch removal
+- ✅ Upstash Vector integration
+- ✅ Factory pattern implementation
+- 🔄 Performance optimization
+- 🔄 Query efficiency improvements

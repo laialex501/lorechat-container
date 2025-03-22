@@ -1,28 +1,16 @@
-"""Vector store service implementations for SiteChat."""
+"""FAISS vector store service implementation."""
 import os
 import pickle
-from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-import boto3
 import faiss
 import numpy as np
+from app import logger
+from app.config.constants import Environment
 from app.config.settings import settings
-from app.services.llm import TitanModel
-from langchain.embeddings.base import Embeddings
+from app.services.embeddings.bedrock import BedrockEmbeddingModel
+from app.services.vectorstore.base import BaseVectorStoreService
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_aws import BedrockEmbeddings
-from langchain_community.vectorstores import OpenSearchVectorSearch
-from opensearchpy import AWSV4SignerAuth
-
-
-class BaseVectorStoreService(ABC):
-    """Abstract base class for vector store services."""
-    
-    @abstractmethod
-    def get_relevant_context(self, query: str) -> Optional[str]:
-        """Get relevant context for a query from the vector store."""
-        pass
 
 
 class FAISSService(BaseVectorStoreService):
@@ -30,8 +18,9 @@ class FAISSService(BaseVectorStoreService):
     
     def __init__(self):
         """Initialize FAISS service."""
+        logger.info("Initializing FAISS vector store...")
         # Initialize embeddings based on provider
-        self.embeddings = self._get_embeddings("document")
+        self.embeddings = BedrockEmbeddingModel(settings.EMBEDDING_DIMENSIONS)
         
         # Initialize text splitter
         self.text_splitter = RecursiveCharacterTextSplitter(
@@ -44,28 +33,68 @@ class FAISSService(BaseVectorStoreService):
         self.index = None
         self.texts = []
         self.metadatas = []
-        
-        # Ensure the directory exists
-        os.makedirs(os.path.dirname(settings.VECTOR_STORE_PATH), exist_ok=True)
-        
-        # Load existing index if available
+
+        # Load existing index if available or initialize with sample data
         self._load_index()
     
-    def _get_embeddings(self, input_type: str) -> Embeddings:
-        """Get Bedrock embeddings model."""
-        return BedrockEmbeddings(
-            model_id=TitanModel.TITAN_EMBED_V2,
-            region_name=settings.AWS_DEFAULT_REGION
-        )
-    
     def _load_index(self):
-        """Load FAISS index, texts, and metadatas from file if it exists."""
+        """Load FAISS index, texts, and metadatas from file if it exists.
+        In development mode, initialize with sample data if needed."""
+        # Try to load existing index if directory exists
         if os.path.exists(settings.VECTOR_STORE_PATH):
             with open(settings.VECTOR_STORE_PATH, 'rb') as f:
                 saved_data = pickle.load(f)
                 self.index = saved_data['index']
                 self.texts = saved_data.get('texts', [])
                 self.metadatas = saved_data.get('metadatas', [])
+            return
+
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(settings.VECTOR_STORE_PATH), exist_ok=True)
+
+        # In development mode, initialize with sample data if doesn't exist
+        if settings.ENV == Environment.DEVELOPMENT:
+            self._init_with_sample_data()
+
+    def _init_with_sample_data(self):
+        """Initialize development vector store with sample data."""
+        logger.info("Initializing development vector store...")
+        
+        # Read sample data with metadata
+        texts_with_metadata = self._read_sample_data()
+        if not texts_with_metadata:
+            logger.warning("No sample data found to initialize vector store")
+            return
+        
+        # Initialize vector store with sample data and metadata
+        logger.info("Adding documents to vector store...")
+        texts, metadatas = zip(*texts_with_metadata)
+        self.add_texts(texts, metadatas=metadatas)
+        
+        logger.info(f"Vector store initialized with {len(texts)} documents")
+
+    def _read_sample_data(self):
+        """Read content from sample data files with metadata."""
+        logger.info("Reading sample data...")
+        texts_with_metadata = []
+        sample_dir = settings.BASE_DIR / "sampledata"
+        
+        if not sample_dir.exists():
+            logger.warning(f"Sample data directory not found: {sample_dir}")
+            return texts_with_metadata
+        
+        for file_path in sample_dir.glob("*.html"):
+            try:
+                with open(file_path, "r", encoding="utf-8") as f:
+                    content = f.read()
+                    metadata = {"file_name": file_path.name}
+                    texts_with_metadata.append((content, metadata))
+                    logger.info(f"Read content from {file_path.name}")
+            except Exception as e:
+                logger.error(f"Error reading {file_path}: {str(e)}")
+                continue
+        
+        return texts_with_metadata
     
     def _save_index(self):
         """Save FAISS index, texts, and metadatas to file."""
@@ -175,79 +204,8 @@ class FAISSService(BaseVectorStoreService):
             
         except Exception as e:
             # Log error and return None
-            import logging
-            logging.error(
+            logger.error(
                 f"Error getting relevant context: {str(e)}", 
                 exc_info=True
             )
             return None
-
-
-class OpenSearchService(BaseVectorStoreService):
-    """OpenSearch vector store service implementation for production."""
-    
-    def __init__(self):
-        """Initialize OpenSearch service."""
-        self.embeddings = BedrockEmbeddings(
-            model_id=TitanModel.TITAN_EMBED_V2,
-            region_name=settings.AWS_DEFAULT_REGION
-        )
-        
-        # Get AWS credentials
-        credentials = boto3.Session().get_credentials()
-        awsauth = AWSV4SignerAuth(
-            credentials,
-            settings.AWS_DEFAULT_REGION,
-            'es'  # 'es' = elasticsearch, 'aoss' = opensearch serverless
-        )
-        
-        # Initialize LangChain OpenSearchVectorSearch
-        self.vectorstore = OpenSearchVectorSearch(
-            index_name='sitechat-vectorstore',
-            embedding_function=self.embeddings,
-            opensearch_url=f"https://{settings.OPENSEARCH_ENDPOINT}:443",
-            http_auth=awsauth,
-            use_ssl=True,
-            verify_certs=True,
-            is_aoss=False
-        )
-    
-    def get_relevant_context(self, query: str) -> Optional[str]:
-        """Get relevant context for a query from OpenSearch.
-        
-        Args:
-            query: The query string
-            
-        Returns:
-            str: Relevant context if found, None otherwise
-        """
-        try:
-            # Use similarity_search to get relevant documents
-            docs = self.vectorstore.similarity_search(
-                query,
-                k=3  # Get top 3 most similar
-            )
-            
-            if not docs:
-                return None
-            
-            # Extract and combine the page content from documents
-            relevant_texts = [doc.page_content for doc in docs]
-            return "\n\n".join(relevant_texts)
-            
-        except Exception as e:
-            # Log error and return None
-            import logging
-            logging.error(
-                f"Error getting relevant context: {str(e)}", 
-                exc_info=True
-            )
-            return None
-
-
-def get_vector_store() -> BaseVectorStoreService:
-    """Factory function to get vector store service."""
-    if settings.VECTOR_STORE_PROVIDER == "opensearch":
-        return OpenSearchService()
-    else:
-        return FAISSService()
