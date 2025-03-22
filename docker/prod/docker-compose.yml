@@ -5,6 +5,9 @@ services:
     build:
       context: ../..
       dockerfile: docker/prod/Dockerfile
+      args:
+        - USE_FINCH=true
+      platform: linux/amd64
     ports:
       - "8501:8501"
     environment:

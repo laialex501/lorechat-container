@@ -1,12 +1,16 @@
+# syntax=docker/dockerfile:1
+ARG USE_FINCH=true
+
 # Use Python 3.9 slim as base image for smaller size
-FROM python:3.9-slim
+FROM --platform=linux/amd64 python:3.9-slim
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    DEBIAN_FRONTEND=noninteractive
+    DEBIAN_FRONTEND=noninteractive \
+    USE_FINCH=${USE_FINCH}
 
 # Set working directory
 WORKDIR /app

@@ -13,7 +13,21 @@ The SiteChat application is a Streamlit-based chatbot that provides a conversati
 - No user configuration or file upload capabilities
 - Ability to switch between LLM providers (OpenAI and AWS Bedrock)
 
-### 2.2 Development Mode
+### 2.2 Vector Store Integration
+- Local vector database (FAISS) for development
+- Upstash Vector for production deployment
+- Efficient vector storage and retrieval
+- Automatic scaling in production
+
+### 2.3 Query Intelligence
+- Prompt engineering optimization
+- Query rewriting system
+- Internet search tool integration
+- Agentic flow capabilities
+- Vector query optimization
+- Enhanced context retrieval
+
+### 2.4 Development Mode
 - Local vector database (FAISS) initialization
 - Sample data loading capability
 - Environment-specific configuration
@@ -33,6 +47,7 @@ The SiteChat application is a Streamlit-based chatbot that provides a conversati
 - Docker
 - LangChain
 - FAISS (development)
+- Upstash Vector (production)
 - OpenAI API
 - AWS Bedrock
 - AWS SDK (boto3)

@@ -1,0 +1,219 @@
+# SiteChat Project Rules and Patterns
+
+## Project Intelligence
+
+### 1. Code Organization Patterns
+- Python modules follow a clear hierarchical structure
+- Service implementations use abstract base classes
+- Configuration uses Pydantic for validation
+- Logging follows structured format
+- UI components are Streamlit-based
+
+### 2. Implementation Patterns
+```python
+# Service Pattern
+class BaseService(ABC):
+    @abstractmethod
+    def method(self):
+        pass
+
+class ConcreteService(BaseService):
+    def method(self):
+        # Implementation
+```
+
+### 3. Configuration Patterns
+- Environment variables in .env files
+- Pydantic settings validation
+- Environment-specific configs
+- Docker environment handling
+
+### 4. Development Workflow
+- Docker-based development
+- Local testing with FAISS
+- Environment variable configuration
+- Hot reloading enabled
+
+## Project Preferences
+
+### 1. Code Style
+- PEP 8 compliance
+- Type hints required
+- Docstrings for all public interfaces
+- Clear error messages
+- Comprehensive logging
+
+### 2. File Organization
+```
+app/
+├── chat/         # Chat functionality
+├── config/       # Configuration
+├── services/     # Core services
+├── monitoring/   # Logging/metrics
+└── ui/          # Streamlit UI
+```
+
+### 3. Naming Conventions
+- Classes: PascalCase
+- Functions/Methods: snake_case
+- Constants: UPPER_SNAKE_CASE
+- Variables: snake_case
+- Type aliases: PascalCase
+
+### 4. Documentation
+- Clear module docstrings
+- Function/method documentation
+- Type hints
+- Usage examples
+- Implementation notes
+
+## Critical Paths
+
+### 1. Chat Implementation
+```python
+# Message flow
+User Input -> Session State -> LLM Service -> Response Generation -> UI Update
+```
+
+### 2. LLM Integration
+```python
+# Dynamic provider selection
+User Input -> Provider Factory -> Concrete Provider -> Response Generation
+```
+
+### 3. Vector Store
+```python
+# Synchronous data flow
+Content -> Vectorization -> Static FAISS Store -> Synchronous Similarity Search -> Context Retrieval
+```
+
+## Known Challenges
+
+### 1. Development Environment
+- Docker container needs specific environment setup
+- Hot reloading requires watchdog configuration
+- Static vector store setup and management
+- Dynamic LLM provider selection
+
+### 2. Implementation Details
+- Session state management in Streamlit
+- LLM response streaming
+- Synchronous vector store operations
+- Dynamic LLM provider handling
+- Error handling patterns
+
+## Tool Usage Patterns
+
+### 1. Docker Commands
+```bash
+# Development startup
+cd docker/dev && docker-compose up --build
+
+# Container shell access
+docker-compose exec sitechat bash
+
+# Logs viewing
+docker-compose logs -f sitechat
+```
+
+### 2. Development Tools
+```bash
+# Run tests
+pytest tests/
+
+# Start development server
+streamlit run main.py
+
+# Format code
+black .
+```
+
+## AWS Integration
+
+### 1. Bedrock Setup
+- Region configuration required
+- Model access must be enabled
+- IAM roles needed
+- API quotas considered
+
+### 2. ECS Deployment
+- Container optimization
+- Resource allocation
+- Health monitoring
+- Auto-scaling configuration
+
+## Error Handling
+
+### 1. Pattern
+```python
+try:
+    # Operation
+except SpecificError as e:
+    logger.error(f"Operation failed: {str(e)}", exc_info=True)
+    # Handle error
+except Exception as e:
+    logger.error(f"Unexpected error: {str(e)}", exc_info=True)
+    # Generic handling
+```
+
+### 2. Error Types
+- LLM API errors
+- Vector store errors
+- Configuration errors
+- Runtime errors
+
+## Performance Considerations
+
+### 1. Resource Management
+- Container memory limits
+- Vector store optimization
+- Response streaming
+- Concurrent requests
+
+### 2. Optimization Points
+- Vector search
+- LLM response generation
+- Message processing
+- UI updates
+
+## Security Practices
+
+### 1. Configuration
+- Secure API key handling
+- Environment isolation
+- Access control
+- Secret management
+
+### 2. Runtime
+- Input validation
+- Error sanitization
+- Resource limits
+- Secure defaults
+
+## Testing Strategy
+
+### 1. Unit Tests
+- Service tests
+- Component tests
+- Utility tests
+- Mock integrations
+
+### 2. Integration Tests
+- API integration
+- Service interaction
+- End-to-end flows
+- Performance testing
+
+## Monitoring Approach
+
+### 1. Logging
+- Structured logging
+- Error tracking
+- Performance metrics
+- User interactions
+
+### 2. Metrics
+- Response times
+- Error rates
+- Resource usage
+- System health

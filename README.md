@@ -6,6 +6,7 @@ A Streamlit-based chatbot for providing a conversational interface to website co
 
 - Real-time chat interaction with website content
 - Development mode with local vector database (FAISS)
+- Production mode with Upstash Vector database
 - Flexible LLM integration (OpenAI or Amazon Bedrock)
 - Containerized deployment ready
 - Comprehensive logging and monitoring
@@ -13,11 +14,33 @@ A Streamlit-based chatbot for providing a conversational interface to website co
 
 ## Prerequisites
 
-- Docker and Docker Compose
+- Docker and Docker Compose (or Finch as an alternative)
 - Python 3.9+
 - OpenAI API key (if using OpenAI)
 - AWS Account with Bedrock access (if using Bedrock)
 - AWS CLI installed and configured (if using Bedrock)
+
+## Container Build Options
+
+The application supports two container build systems:
+
+### Docker
+Traditional Docker setup using Docker Desktop and docker-compose.
+
+### Finch
+Alternative container build system that doesn't require Docker Desktop:
+
+1. Install Finch:
+```bash
+brew install finch
+```
+
+2. Start Finch:
+```bash
+finch vm start
+```
+
+The application's Dockerfiles and docker-compose files are configured to work with both Docker and Finch. The build system is controlled via the `USE_FINCH` build argument, which defaults to true.
 
 ## LLM Setup
 
@@ -59,13 +82,22 @@ aws bedrock list-foundation-models --region us-east-1
 
 ## Development Setup
 
-### Vector Store Initialization
-In development mode, the application automatically initializes a FAISS vector store with content from the `sampledata/` directory when first launched. This provides an initial dataset for testing and development.
+### Vector Store Configuration
+The application supports two vector store modes:
 
-- The vector store is created at the path specified by `VECTOR_STORE_PATH` (defaults to `dev_vectorstore/faiss`)
-- Initialization only occurs if no existing vector store is found
-- Only HTML files from `sampledata/` are processed
-- The vector store persists between application restarts
+#### Development Mode
+- Uses FAISS vector store for local development
+- Automatically initializes with content from `sampledata/` directory
+- Vector store path configurable via `VECTOR_STORE_PATH` (defaults to `dev_vectorstore/faiss`)
+- Processes HTML files from `sampledata/` directory
+- Persists between application restarts
+
+#### Production Mode
+- Uses Upstash Vector for production deployment
+- Integrates with AWS Lambda data processing pipeline
+- Efficient vector storage and retrieval
+- Automatic scaling and management
+- Requires Upstash Vector credentials (see Environment Setup)
 
 1. Clone the repository:
 ```bash
@@ -88,14 +120,24 @@ OPENAI_MODEL=gpt-3.5-turbo
 # AWS Bedrock Settings (required if using bedrock provider)
 AWS_DEFAULT_REGION=us-east-1  # Your AWS region
 # Note: AWS credentials should be configured via aws configure
+
+# Upstash Vector Settings (optional for development)
+UPSTASH_VECTOR_URL=your_upstash_url
+UPSTASH_VECTOR_TOKEN=your_upstash_token
 ```
 
 3. Start the development environment:
-Install Docker Desktop https://docs.docker.com/desktop/
 
+Using Docker:
 ```bash
 cd docker/dev
 docker-compose up --build
+```
+
+Using Finch:
+```bash
+cd docker/dev
+finch compose up --build
 ```
 
 The application will be available at http://localhost:8501
@@ -108,12 +150,18 @@ SiteChat/
 │   ├── chat/           # Chat session management
 │   ├── config/         # Configuration settings
 │   ├── services/       # Core services (LLM, Vector Store)
+│   │   ├── embeddings/ # Embedding services
+│   │   ├── llm/       # LLM providers
+│   │   └── vectorstore/# Vector store implementations
 │   ├── monitoring/     # Logging and metrics
 │   └── ui/            # Streamlit UI components
 ├── docker/
 │   ├── dev/           # Development environment
 │   └── prod/          # Production environment
 ├── tests/             # Test suites
+│   ├── integration/   # Integration tests
+│   └── unit/         # Unit tests
+├── sampledata/        # Sample HTML content
 ├── requirements.txt   # Python dependencies
 ├── main.py           # Application entry point
 └── README.md         # Project documentation
@@ -142,13 +190,47 @@ pytest tests/
 
 Logs are stored in the `logs` directory and are also output to the console in development mode.
 
-## Docker Development
+## Container Development
 
 Build and run the development container:
+
+Using Docker:
 ```bash
 cd docker/dev
 docker-compose up --build
 ```
+
+Using Finch:
+```bash
+cd docker/dev
+finch compose up --build
+```
+
+Note: The container is configured to run on ARM64 architecture for optimal performance on modern systems. The platform is automatically set in both development and production environments.
+
+## CDK Deployment
+
+The CDK stack supports both Docker and Finch for building container images. By default, it will use Finch if available.
+
+Using Docker:
+```bash
+unset CDK_DOCKER
+export USE_FINCH=false
+cdk deploy
+```
+
+Using Finch:
+```bash
+# Start Finch VM if not running
+finch vm start
+
+# Set CDK to use Finch for container builds
+export CDK_DOCKER=finch
+export USE_FINCH=true
+cdk deploy
+```
+
+Note: The CDK_DOCKER environment variable tells CDK which container build tool to use, while USE_FINCH configures the container build process itself. Both need to be set correctly for Finch to work properly.
 
 ## Contributing
 

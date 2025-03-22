@@ -14,11 +14,18 @@ Phase 2: Core Implementation (Data Pipeline Integration)
    - Created Lambda functions for data processing
    - Added Bedrock model access permissions
    - Integrated Upstash Vector for embeddings storage
+   - Enhanced error handling and monitoring
 
 3. **Architecture Improvements**
    - Streamlined stack organization
    - Enhanced error handling and logging
    - Improved security with IAM roles and policies
+
+4. **Container Build System Update**
+   - Added support for Finch as an alternative to Docker
+   - Updated Dockerfiles and docker-compose files for both dev and prod environments
+   - Implemented USE_FINCH build argument to control Finch usage
+   - Set platform to linux/arm64 for improved compatibility
 
 ## Current Focus
 
@@ -48,6 +55,10 @@ graph TD
 - Vector store query optimization
 - Error handling in data pipeline
 - Integration test coverage
+- Query rewriting system needed
+- Prompt engineering improvements required
+- Internet search tools integration pending
+- Vector query optimization needed
 
 ## Next Actions
 
@@ -56,12 +67,19 @@ graph TD
 2. Validate Upstash Vector integration
 3. Test data processing pipeline
 4. Update system documentation
+5. Test and validate Finch-based builds in both dev and prod environments
+6. Update CI/CD pipelines to support Finch (if applicable)
+7. Document Finch usage in project README and developer guidelines
 
 ### Short Term
 1. Optimize Lambda performance
 2. Enhance monitoring and logging
 3. Implement comprehensive testing
 4. Fine-tune vector store operations
+5. Integrate internet search tools
+6. Implement agentic flow system
+7. Implement prompt engineering improvements
+8. Develop query rewriting system
 
 ## Technical Focus
 - Data pipeline reliability

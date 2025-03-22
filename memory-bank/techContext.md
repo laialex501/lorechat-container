@@ -34,9 +34,12 @@ graph TD
 - Directory structure: app/, docker/, tests/, lambda/, logs/
 - Key env vars: ENV, DEBUG, LOG_LEVEL, LLM_PROVIDER, API keys, AWS settings, UPSTASH_* credentials
 
-### Docker Configuration
+### Docker/Finch Configuration
 - Dev: Streamlit port 8501, volume mounts for app, logs
 - Prod: Python 3.9-slim, optimized, minimal deps, security-hardened
+- Both environments support Finch as an alternative to Docker
+- USE_FINCH build argument controls Finch usage
+- Platform set to linux/arm64 for compatibility
 
 ## Service Integration
 
