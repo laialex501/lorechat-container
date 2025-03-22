@@ -78,7 +78,3 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-
-# Cline
-.clinerules
-memory-bank/
