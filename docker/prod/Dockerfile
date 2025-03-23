@@ -39,11 +39,13 @@ RUN chmod -R 755 logs
 # Expose Streamlit port
 EXPOSE 8501
 
-# Set environment variables for Streamlit
+# Set environment variables for Streamlit (needed to avoid 502 errors with CloudFront)
 ENV STREAMLIT_SERVER_PORT=8501 \
     STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
     STREAMLIT_BROWSER_GATHER_USAGE_STATS=false \
-    STREAMLIT_THEME_BASE="dark"
+    STREAMLIT_THEME_BASE="dark" \
+    STREAMLIT_SERVER_ENABLEWEBSOCKETCOMPRESSION=true \
+    STREAMLIT_SERVER_ENABLEXSRFPROTECTION=false
 
 # Command to run the application
 CMD ["streamlit", "run", "main.py"]
