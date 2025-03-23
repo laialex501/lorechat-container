@@ -1,5 +1,5 @@
 """
-SiteChat - A Streamlit-based chatbot for website content interaction.
+LoreChat - A Streamlit-based chatbot for website content interaction.
 """
 
 __version__ = "0.1.0"

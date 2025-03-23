@@ -7,14 +7,14 @@ from typing import Optional
 
 def setup_logging(
     log_level: int = logging.INFO,
-    log_file: Optional[str] = "logs/sitechat.log"
+    log_file: Optional[str] = "logs/lorechat.log"
 ) -> logging.Logger:
     """
     Configure application-wide logging with both file and console handlers.
     
     Args:
         log_level: The logging level to use (default: logging.INFO)
-        log_file: Path to the log file (default: logs/sitechat.log)
+        log_file: Path to the log file (default: logs/lorechat.log)
     
     Returns:
         logging.Logger: Configured logger instance
@@ -53,18 +53,18 @@ def setup_logging(
     root_logger.addHandler(console_handler)
     
     # Create and configure application logger
-    logger = logging.getLogger("sitechat")
+    logger = logging.getLogger("lorechat")
     logger.setLevel(log_level)
     
     return logger
 
 
-def get_logger(name: str = "sitechat") -> logging.Logger:
+def get_logger(name: str = "lorechat") -> logging.Logger:
     """
     Get a logger instance with the specified name.
     
     Args:
-        name: The name for the logger (default: sitechat)
+        name: The name for the logger (default: lorechat)
     
     Returns:
         logging.Logger: Logger instance

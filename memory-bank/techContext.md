@@ -1,4 +1,4 @@
-# SiteChat Technical Context
+# LoreChat Technical Context
 
 ## Technology Stack
 

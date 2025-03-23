@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     DEBUG: bool = Field(False, env="DEBUG")
     
     # Application
-    APP_NAME: str = "SiteChat"
+    APP_NAME: str = "LoreChat"
     APP_VERSION: str = "0.1.0"
     
     # Paths - Structured for clear separation of concerns
@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     # Logging - Configurable to support different environments
     LOG_LEVEL: str = Field("INFO", env="LOG_LEVEL")
     LOG_FILE: Optional[str] = Field(
-        "logs/sitechat.log",
+        "logs/lorechat.log",
         env="LOG_FILE"
     )
     

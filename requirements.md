@@ -1,7 +1,7 @@
-# SiteChat Requirements
+# LoreChat Requirements
 
 ## 1. System Overview
-The SiteChat application is a Streamlit-based chatbot that provides a conversational interface for accessing and querying website content. The system supports multiple LLM providers (OpenAI and AWS Bedrock) and is designed to be containerized for deployment on AWS ECS.
+The LoreChat application is a Streamlit-based chatbot that provides a conversational interface for accessing and querying website content. The system supports multiple LLM providers (OpenAI and AWS Bedrock) and is designed to be containerized for deployment on AWS ECS.
 
 ## 2. Functional Requirements
 

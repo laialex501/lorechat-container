@@ -1,4 +1,4 @@
-"""Vector store factory for SiteChat."""
+"""Vector store factory for LoreChat."""
 from app import logger
 from app.config.settings import settings
 from app.services.vectorstore.base import (BaseVectorStoreService,

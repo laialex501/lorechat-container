@@ -1,4 +1,4 @@
-# SiteChat Development Roadmap
+# LoreChat Development Roadmap
 
 ## Phase 1: Project Setup and Core Development (Completed)
 - [x] Initialize project structure

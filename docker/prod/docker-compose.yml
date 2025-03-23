@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  sitechat:
+  lorechat:
     build:
       context: ../..
       dockerfile: docker/prod/Dockerfile
@@ -14,7 +14,7 @@ services:
       - ENV=production
       - DEBUG=false
       - LOG_LEVEL=INFO
-      - LOG_FILE=logs/sitechat.log
+      - LOG_FILE=logs/lorechat.log
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8501/_stcore/health || exit 1"]
       interval: 30s

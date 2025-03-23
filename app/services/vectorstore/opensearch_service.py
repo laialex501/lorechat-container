@@ -28,7 +28,7 @@ class OpenSearchService(BaseVectorStoreService):
         
         # Initialize LangChain OpenSearchVectorSearch
         self.vectorstore = OpenSearchVectorSearch(
-            index_name='sitechat-vectorstore',
+            index_name='lorechat-vectorstore',
             embedding_function=self.embeddings,
             opensearch_url=f"https://{settings.OPENSEARCH_ENDPOINT}:443",
             http_auth=awsauth,

@@ -1,4 +1,4 @@
-# SiteChat
+# LoreChat
 
 A Streamlit-based chatbot for providing a conversational interface to website content.
 
@@ -102,7 +102,7 @@ The application supports two vector store modes:
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd SiteChat
+cd LoreChat
 ```
 
 2. Create a `.env` file in the project root based on `.env.dev`:
@@ -145,7 +145,7 @@ The application will be available at http://localhost:8501
 ## Project Structure
 
 ```
-SiteChat/
+LoreChat/
 ├── app/
 │   ├── chat/           # Chat session management
 │   ├── config/         # Configuration settings
@@ -241,4 +241,4 @@ Note: The CDK_DOCKER environment variable tells CDK which container build tool t
 
 ## License
 
-[Add License Information]
+MIT License

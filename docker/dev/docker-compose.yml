@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  sitechat:
+  lorechat:
     build:
       context: ../..
       dockerfile: docker/dev/Dockerfile
@@ -12,13 +12,13 @@ services:
       - "8501:8501"
     volumes:
       - ../..:/app
-      - sitechat_logs:/app/logs
-      - sitechat_vectorstore:/app/faiss
+      - lorechat_logs:/app/logs
+      - lorechat_vectorstore:/app/faiss
     environment:
       - ENV=development
       - DEBUG=true
       - LOG_LEVEL=INFO
-      - LOG_FILE=logs/sitechat.log
+      - LOG_FILE=logs/lorechat.log
       - AWS_DEFAULT_REGION=us-east-1
       - VECTOR_STORE_PATH=dev_vectorstore/faiss
       - PYTHONPATH=/app
@@ -30,7 +30,7 @@ services:
     restart: unless-stopped
 
 volumes:
-  sitechat_logs:
+  lorechat_logs:
     driver: local
-  sitechat_vectorstore:
+  lorechat_vectorstore:
     driver: local

@@ -1,4 +1,4 @@
-# SiteChat Active Context
+# LoreChat Active Context
 
 ## Current Status
 Phase 2: Core Implementation (Data Pipeline Integration)

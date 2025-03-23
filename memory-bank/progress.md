@@ -1,4 +1,4 @@
-# SiteChat Progress Tracker
+# LoreChat Progress Tracker
 
 ## Project Status: Phase 2 - Core Implementation (Data Pipeline Focus)
 

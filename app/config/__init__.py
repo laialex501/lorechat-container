@@ -1,5 +1,5 @@
 """
-Configuration module for SiteChat application.
+Configuration module for LoreChat application.
 """
 
 from app.config.constants import (CHUNK_OVERLAP, CHUNK_SIZE,

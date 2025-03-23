@@ -1,4 +1,4 @@
-"""Chat service implementation for SiteChat."""
+"""Chat service implementation for LoreChat."""
 from typing import Generator, List
 
 from app.services.llm import BaseLLMService

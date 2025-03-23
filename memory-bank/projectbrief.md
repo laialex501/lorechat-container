@@ -1,7 +1,7 @@
-# SiteChat Project Brief
+# LoreChat Project Brief
 
 ## Overview
-SiteChat is a Streamlit-based chatbot application for accessing and querying website content. It features a containerized Python Streamlit frontend deployable to AWS ECS, with backend LLM hosting and RAG handled separately.
+LoreChat is a Streamlit-based chatbot application for accessing and querying website content. It features a containerized Python Streamlit frontend deployable to AWS ECS, with backend LLM hosting and RAG handled separately.
 
 ## Core Requirements
 - Real-time chat interaction with website content

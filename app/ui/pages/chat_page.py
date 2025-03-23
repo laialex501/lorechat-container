@@ -1,4 +1,4 @@
-"""Main chat interface page for SiteChat."""
+"""Main chat interface page for LoreChat."""
 import streamlit as st
 from app import logger
 from app.chat.service import ChatMessage, ChatService
@@ -30,13 +30,13 @@ def render_chat_page():
     """Render the main chat interface."""
     logger.info("Rendering chat page")
     st.set_page_config(
-        page_title="SiteChat",
+        page_title="LoreChat",
         page_icon="💬",
         layout="wide",
         initial_sidebar_state="expanded"
     )
 
-    st.title("Welcome to SiteChat 💬")
+    st.title("Welcome to LoreChat 💬")
     initialize_session_state()
 
     # Model selection
@@ -108,7 +108,7 @@ def render_chat_page():
             st.error(f"Error: {str(e)}")
 
     # Instructions
-    with st.expander("How to use SiteChat"):
+    with st.expander("How to use LoreChat"):
         st.markdown("""
         1. Select your preferred AI model:
            - Bedrock: Claude 3 Sonnet or Haiku

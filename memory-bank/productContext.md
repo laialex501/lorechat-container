@@ -1,7 +1,7 @@
-# SiteChat Product Context
+# LoreChat Product Context
 
 ## Problem & Solution
-SiteChat addresses the need for efficient information retrieval from websites by providing a conversational AI interface. Users can ask questions in natural language and receive contextual, relevant answers derived from website content.
+LoreChat addresses the need for efficient information retrieval from websites by providing a conversational AI interface. Users can ask questions in natural language and receive contextual, relevant answers derived from website content.
 
 ## Core Value Propositions
 1. Natural language interaction

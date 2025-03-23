@@ -1,4 +1,4 @@
-"""SiteChat main application entry point."""
+"""LoreChat main application entry point."""
 import os
 
 import streamlit as st
@@ -7,7 +7,7 @@ from app.ui.pages.chat_page import render_chat_page
 
 if __name__ == "__main__":
     logger = get_logger()
-    logger.info("Starting SiteChat application...")
+    logger.info("Starting LoreChat application...")
 
     logger.info(f"Streamlit version: {st.__version__}")
 

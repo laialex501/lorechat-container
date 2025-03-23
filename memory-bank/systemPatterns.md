@@ -1,4 +1,4 @@
-# SiteChat System Patterns
+# LoreChat System Patterns
 
 ## Stack Organization
 ```mermaid
