@@ -1,4 +1,4 @@
-# SiteChat Project Rules and Patterns
+# LoreChat Project Rules and Patterns
 
 ## Project Intelligence
 
@@ -110,10 +110,10 @@ Content -> Vectorization -> Static FAISS Store -> Synchronous Similarity Search 
 cd docker/dev && docker-compose up --build
 
 # Container shell access
-docker-compose exec sitechat bash
+docker-compose exec lorechat bash
 
 # Logs viewing
-docker-compose logs -f sitechat
+docker-compose logs -f lorechat
 ```
 
 ### 2. Development Tools

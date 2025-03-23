@@ -1,244 +1,225 @@
 # LoreChat
 
-A Streamlit-based chatbot for providing a conversational interface to website content.
+A Streamlit-based conversational AI platform for intelligent website content interaction.
 
-## Features
+> For development and setup instructions, see [DEVELOPMENT.md](DEVELOPMENT.md)
 
-- Real-time chat interaction with website content
-- Development mode with local vector database (FAISS)
-- Production mode with Upstash Vector database
-- Flexible LLM integration (OpenAI or Amazon Bedrock)
-- Containerized deployment ready
-- Comprehensive logging and monitoring
-- AWS service integration ready
+## Project Overview
 
-## Prerequisites
+Hey there! Welcome to LoreChat, my GenAI portfolio project. I've built this to showcase how modern AI can transform the way we interact with website content. It's a Streamlit-based application that combines vector search and large language models to create intelligent, context-aware conversations.
 
-- Docker and Docker Compose (or Finch as an alternative)
-- Python 3.9+
-- OpenAI API key (if using OpenAI)
-- AWS Account with Bedrock access (if using Bedrock)
-- AWS CLI installed and configured (if using Bedrock)
+LoreChat is the application component of a larger system. The infrastructure is managed by [LoreChatCDK](https://github.com/laialex501/lorechat-cdk), which handles the AWS deployment and cloud resources.
 
-## Container Build Options
+### Key Features
+- Real-time chat with semantic understanding
+- Flexible LLM integration (OpenAI, Claude, Deepseek, Nova)
+- Local development with FAISS vector store
+- Production deployment with Upstash Vector
+- Containerized for consistent environments
+- Comprehensive monitoring and logging
 
-The application supports two container build systems:
+### Tech Stack
+- Python 3.9
+- Streamlit
+- LangChain
+- FAISS
+- Upstash Vector
+- AWS SDK
+- Docker/Finch
+- pytest
 
-### Docker
-Traditional Docker setup using Docker Desktop and docker-compose.
+## Architecture Overview
 
-### Finch
-Alternative container build system that doesn't require Docker Desktop:
+Let's dive into LoreChat's architecture. Here's how the components work together:
 
-1. Install Finch:
-```bash
-brew install finch
+```mermaid
+graph TD
+    subgraph "Frontend Layer"
+        A[Streamlit UI] --> B[Chat Manager]
+        B --> C[Session State]
+    end
+
+    subgraph "Service Layer"
+        D[LLM Factory] --> E[OpenAI Service]
+        D --> F[Bedrock Service]
+        G[Vector Store Factory] --> H[FAISS Service]
+        G --> I[Upstash Service]
+    end
+
+    subgraph "Data Processing"
+        J[Source Data] --> K[Processing Pipeline]
+        K --> L[Vector Storage]
+        M[Embeddings Service] --> K
+    end
+
+    subgraph "Infrastructure"
+        N[Logging System]
+        O[Configuration]
+        P[Monitoring]
+    end
+
+    B --> D
+    B --> G
+    K --> G
 ```
 
-2. Start Finch:
-```bash
-finch vm start
+This architecture reflects key design decisions that prioritize flexibility, maintainability, and performance. Let me walk you through the main components:
+
+1. **Frontend Layer**: Built with Streamlit for rapid development and clean UI
+2. **Service Layer**: Uses factory patterns for provider flexibility
+3. **Data Processing**: Handles content ingestion and vectorization
+4. **Infrastructure**: Manages configuration, logging, and monitoring
+
+## Design Philosophy
+
+I chose Python and Streamlit for this project because they offer the perfect balance of development speed and production readiness. The architecture follows these core principles:
+
+1. **Provider Independence**
+   - Factory patterns for LLM and vector store services
+   - Abstract interfaces for core components
+   - Easy integration of new providers
+
+2. **Development Experience**
+   - Local FAISS for rapid development
+   - Docker/Finch for environment consistency
+   - Comprehensive logging and monitoring
+
+3. **Production Ready**
+   - Containerized deployment
+   - Cloud service integration
+   - Scalable architecture
+
+## Core Components
+
+### LLM Integration
+
+The LLM service uses a factory pattern for flexible provider integration:
+
+```mermaid
+graph TD
+    A[LLM Factory] --> B[Base LLM Service]
+    B --> C[OpenAI Service]
+    B --> D[Bedrock Service]
+    
+    subgraph "Provider Features"
+        C --> E[GPT Models]
+        D --> F[Claude]
+        D --> G[Deepseek]
+        D --> H[Nova]
+    end
 ```
 
-The application's Dockerfiles and docker-compose files are configured to work with both Docker and Finch. The build system is controlled via the `USE_FINCH` build argument, which defaults to true.
+This design allows:
+- Runtime provider switching
+- Easy addition of new providers
+- Consistent interface across models
+- Fallback strategies
 
-## LLM Setup
+### Vector Store
 
-The application supports two LLM providers for development: OpenAI and Amazon Bedrock. Choose your preferred provider by setting the `LLM_PROVIDER` environment variable.
+The vector store implementation supports both development and production environments:
 
-### OpenAI Setup
-
-1. Get your OpenAI API key from [OpenAI Platform](https://platform.openai.com/api-keys)
-2. Set the key in your environment file (see Development Setup section)
-
-### Amazon Bedrock Setup
-
-1. Ensure you have AWS CLI installed:
-```bash
-aws --version
+```mermaid
+graph TD
+    A[Vector Store Factory] --> B[Base Vector Store]
+    B --> C[FAISS Service]
+    B --> D[Upstash Service]
+    
+    subgraph "Features"
+        C --> E[Local Development]
+        C --> F[Fast Prototyping]
+        D --> G[Cloud Storage]
+        D --> H[Scalable Search]
+    end
 ```
 
-2. Configure AWS credentials:
-```bash
-aws configure
-```
-Enter your AWS credentials when prompted:
-- AWS Access Key ID
-- AWS Secret Access Key
-- Default region (e.g., us-east-1)
-- Default output format (json)
+Key features:
+- Automatic initialization from sample data
+- Persistent storage options
+- Efficient vector search
+- Cloud service integration
 
-3. Enable Amazon Bedrock Model Access:
-   - Go to AWS Console > Amazon Bedrock
-   - Navigate to "Model access"
-   - Click "Manage model access"
-   - Enable access to "Anthropic Claude 3 Sonnet"
-   - Click "Save changes"
+### Data Processing
 
-4. Verify Bedrock access:
-```bash
-aws bedrock list-foundation-models --region us-east-1
-```
+The data processing pipeline handles content ingestion and vectorization:
 
-## Development Setup
-
-### Vector Store Configuration
-The application supports two vector store modes:
-
-#### Development Mode
-- Uses FAISS vector store for local development
-- Automatically initializes with content from `sampledata/` directory
-- Vector store path configurable via `VECTOR_STORE_PATH` (defaults to `dev_vectorstore/faiss`)
-- Processes HTML files from `sampledata/` directory
-- Persists between application restarts
-
-#### Production Mode
-- Uses Upstash Vector for production deployment
-- Integrates with AWS Lambda data processing pipeline
-- Efficient vector storage and retrieval
-- Automatic scaling and management
-- Requires Upstash Vector credentials (see Environment Setup)
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd LoreChat
+```mermaid
+sequenceDiagram
+    participant S as Source Data
+    participant P as Processor
+    participant E as Embeddings
+    participant V as Vector Store
+    
+    S->>P: Raw Content
+    P->>P: Clean & Format
+    P->>E: Generate Embeddings
+    E->>V: Store Vectors
 ```
 
-2. Create a `.env` file in the project root based on `.env.dev`:
-```bash
-# Environment
-ENV=development
-DEBUG=true
-LOG_LEVEL=INFO
-VECTOR_STORE_PATH=dev_vectorstore/faiss
+This pipeline:
+- Processes HTML content
+- Generates embeddings
+- Stores vector data
+- Maintains data consistency
 
-# OpenAI Settings (required if using openai provider)
-OPENAI_API_KEY=your_api_key_here
-OPENAI_MODEL=gpt-3.5-turbo
+## Integration Points
 
-# AWS Bedrock Settings (required if using bedrock provider)
-AWS_DEFAULT_REGION=us-east-1  # Your AWS region
-# Note: AWS credentials should be configured via aws configure
+### AWS Services
 
-# Upstash Vector Settings (optional for development)
-UPSTASH_VECTOR_URL=your_upstash_url
-UPSTASH_VECTOR_TOKEN=your_upstash_token
-```
+LoreChat integrates seamlessly with AWS services:
+- Bedrock for LLM capabilities
+- Lambda for data processing
+- ECS for deployment
+- CloudWatch for monitoring
 
-3. Start the development environment:
+### Vector Database
 
-Using Docker:
-```bash
-cd docker/dev
-docker-compose up --build
-```
+I chose Upstash Vector for production after evaluating several options:
+- Generous free tier
+- Simple integration
+- Pay-per-use pricing
+- Hybrid search capabilities
 
-Using Finch:
-```bash
-cd docker/dev
-finch compose up --build
-```
+The abstracted interface means we can switch providers if needed.
 
-The application will be available at http://localhost:8501
+## Performance and Scaling
 
-## Project Structure
+The application is optimized for:
+- Streamlit's concurrent user limitations (~50-100 active users)
+- Real-time chat interactions with response streaming
+- Moderate-sized document collections (tested with sample documentation)
+- Multiple LLM provider support through factory pattern
 
-```
-LoreChat/
-├── app/
-│   ├── chat/           # Chat session management
-│   ├── config/         # Configuration settings
-│   ├── services/       # Core services (LLM, Vector Store)
-│   │   ├── embeddings/ # Embedding services
-│   │   ├── llm/       # LLM providers
-│   │   └── vectorstore/# Vector store implementations
-│   ├── monitoring/     # Logging and metrics
-│   └── ui/            # Streamlit UI components
-├── docker/
-│   ├── dev/           # Development environment
-│   └── prod/          # Production environment
-├── tests/             # Test suites
-│   ├── integration/   # Integration tests
-│   └── unit/         # Unit tests
-├── sampledata/        # Sample HTML content
-├── requirements.txt   # Python dependencies
-├── main.py           # Application entry point
-└── README.md         # Project documentation
-```
+Key optimizations:
+- Efficient vector search with FAISS/Upstash
+- Response streaming for better UX
+- Session-based state management
+- Containerized deployment for consistent scaling
 
-## Development Workflow
+## Monitoring and Logging
 
-1. Make changes to the code
-2. Run tests:
-```bash
-pytest tests/
-```
-3. Start the development server:
-```bash
-streamlit run main.py
-```
+Comprehensive monitoring includes:
+- Request tracking
+- Error logging
+- Performance metrics
+- Resource utilization
 
-## Testing
+Logs provide:
+- Structured data
+- Error tracing
+- Performance insights
+- Usage patterns
 
-Run the test suite:
-```bash
-pytest tests/
-```
+## Future Improvements
 
-## Logging
-
-Logs are stored in the `logs` directory and are also output to the console in development mode.
-
-## Container Development
-
-Build and run the development container:
-
-Using Docker:
-```bash
-cd docker/dev
-docker-compose up --build
-```
-
-Using Finch:
-```bash
-cd docker/dev
-finch compose up --build
-```
-
-Note: The container is configured to run on ARM64 architecture for optimal performance on modern systems. The platform is automatically set in both development and production environments.
-
-## CDK Deployment
-
-The CDK stack supports both Docker and Finch for building container images. By default, it will use Finch if available.
-
-Using Docker:
-```bash
-unset CDK_DOCKER
-export USE_FINCH=false
-cdk deploy
-```
-
-Using Finch:
-```bash
-# Start Finch VM if not running
-finch vm start
-
-# Set CDK to use Finch for container builds
-export CDK_DOCKER=finch
-export USE_FINCH=true
-cdk deploy
-```
-
-Note: The CDK_DOCKER environment variable tells CDK which container build tool to use, while USE_FINCH configures the container build process itself. Both need to be set correctly for Finch to work properly.
-
-## Contributing
-
-1. Create a feature branch
-2. Make your changes
-3. Run tests
-4. Submit a pull request
+While the current system is robust, there's always room for growth:
+- Multi-agent conversations
+- Voice interface integration
+- Enhanced content generation
+- Advanced caching strategies
+- Improved context handling
+- Custom model fine-tuning
 
 ## License
 
-MIT License
+This project is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository.
