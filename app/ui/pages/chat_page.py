@@ -9,18 +9,7 @@ from app.services.vectorstore import VectorStoreFactory
 def initialize_session_state():
     """Initialize session state variables."""
     if "messages" not in st.session_state:
-        st.session_state.messages = [
-            ChatMessage(
-                role="assistant",
-                content=(
-                    "Greetings, seeker of knowledge! I am a humble wizard scribe in service "
-                    "to Nethys, the All-Seeing Eye, god of magic and knowledge. Within these "
-                    "halls of wisdom, I tend to the sacred scrolls and tomes, preserving and "
-                    "sharing their insights with those who seek understanding. How may I "
-                    "illuminate your path today?"
-                )
-            )
-        ]
+        st.session_state.messages = []
     if "provider" not in st.session_state:
         st.session_state.provider = LLMProvider.Anthropic
     if "model_name" not in st.session_state:
@@ -49,6 +38,17 @@ def render_chat_page():
 
     st.title("Welcome to LoreChat 💬")
     initialize_session_state()
+    
+    # Show welcome message if no messages exist
+    if not st.session_state.messages:
+        with st.chat_message("assistant"):
+            st.markdown(
+                "Greetings, seeker of knowledge! I am a humble wizard scribe in service "
+                "to Nethys, the All-Seeing Eye, god of magic and knowledge. Within these "
+                "halls of wisdom, I tend to the sacred scrolls and tomes, preserving and "
+                "sharing their insights with those who seek understanding. How may I "
+                "illuminate your path today?"
+            )
 
     # Model selection
     col1, col2 = st.columns(2)
