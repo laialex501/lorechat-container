@@ -1,0 +1,29 @@
+[flake8]
+# Maximum line length
+max-line-length = 120
+
+# Exclude directories/files
+exclude = 
+    .git,
+    __pycache__,
+    build,
+    dist,
+    *.egg-info
+
+# Ignore specific errors
+ignore = 
+    E203,  # whitespace before ':'
+    E266,  # too many leading '#' for block comment
+    W503   # line break before binary operator
+
+# Maximum complexity
+max-complexity = 10
+
+# Specify the list of error codes to check
+select = B,C,E,F,W,T4,B9
+
+# Set maximum allowed McCabe complexity value
+max-complexity = 10
+
+# Configure docstring checking
+docstring-convention = google

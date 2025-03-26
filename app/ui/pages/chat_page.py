@@ -9,7 +9,18 @@ from app.services.vectorstore import VectorStoreFactory
 def initialize_session_state():
     """Initialize session state variables."""
     if "messages" not in st.session_state:
-        st.session_state.messages = []
+        st.session_state.messages = [
+            ChatMessage(
+                role="assistant",
+                content=(
+                    "Greetings, seeker of knowledge! I am a humble wizard scribe in service "
+                    "to Nethys, the All-Seeing Eye, god of magic and knowledge. Within these "
+                    "halls of wisdom, I tend to the sacred scrolls and tomes, preserving and "
+                    "sharing their insights with those who seek understanding. How may I "
+                    "illuminate your path today?"
+                )
+            )
+        ]
     if "provider" not in st.session_state:
         st.session_state.provider = LLMProvider.Anthropic
     if "model_name" not in st.session_state:

@@ -13,6 +13,7 @@ logging-utils>=0.3.0
 typing-extensions>=4.5.0
 pydantic>=2.0.0
 pydantic-settings>=2.1.0
+sentence_transformers>=3.4.1
 tenacity>=8.2.2
 numpy>=1.24.3
 pandas>=2.0.3
