@@ -1,56 +1,44 @@
 # LoreChat Product Context
 
 ## Problem & Solution
-LoreChat addresses the need for efficient information retrieval from websites by providing a conversational AI interface. Users can ask questions in natural language and receive contextual, relevant answers derived from website content.
+LoreChat provides intelligent document interaction through LangChain-powered conversational AI. Users receive contextual, relevant answers from website content through graph-based conversation flows.
 
 ## Core Value Propositions
-1. Natural language interaction
-2. Contextual understanding of website content
-3. Quick, relevant answers without manual searching
-4. Flexible integration with different LLM providers
+1. Intelligent conversation flows with LangGraph
+2. Contextual understanding via LangChain RAG
+3. Streamlined memory management
+4. Flexible LLM provider integration
 
 ## User Experience Goals
-- Simple, intuitive chat interface
-- Real-time, responsive interactions
-- Clear user/assistant message distinction
-- Maintained conversation context within session
+- Natural conversation progression
+- Context-aware responses
+- Clear conversation state management
+- Sub-second response times
 
 ## Key Interaction Patterns
-1. Welcoming initial engagement
-2. Smooth conversation flow with visual feedback
-3. Formatted, readable responses with markdown support
+```mermaid
+graph TD
+    A[User Query] --> B[Context Retrieval]
+    B --> C[State Analysis]
+    C --> D[Response Generation]
+    D --> E[State Update]
+    E --> |If needed| B
+```
 
 ## Performance Targets
-- Response time: < 2 seconds for typical queries
-- Scalability: Handle multiple concurrent users
-- Error handling: Clear, user-friendly messages
-
-## User Scenarios
-1. Quick information lookup
-2. Multi-turn conversations with context retention
+- Response time: < 1 second
+- Concurrent users: ~50
+- Context relevance: > 90%
+- Memory efficiency: < 500MB per session
 
 ## Success Metrics
-- User experience: Response accuracy, query resolution time, session duration
-- Technical: Response latency, concurrent user handling, error rate, resource utilization
-
-## Design Principles
-1. Simplicity first
-2. Responsive design
-3. Contextual intelligence
-4. Error resilience
-
-## Future Considerations
-- Potential enhancements: Multi-language support, rich media responses, analytics
-- Integration opportunities: Authentication, CMS, analytics, monitoring
-
-## Current Limitations
-- Session-only history
-- No user authentication
-- Text-only responses
-- Development-mode vector store
+- Query resolution accuracy
+- Conversation coherence
+- Resource utilization
+- User satisfaction
 
 ## Technical Constraints
-- Streamlit framework limitations
+- Streamlit session state limitations
 - LLM API dependencies
 - Container resource limits
-- Development environment restrictions
+- AWS service quotas

@@ -1,108 +1,85 @@
 # LoreChat Progress Tracker
 
-## Project Status: Phase 2 - Core Implementation (Data Pipeline Focus)
+## Project Status: LangGraph Implementation Phase
 
 ### Development Progress
 ```mermaid
 pie title Component Completion
-    "Complete" : 70
-    "Data Pipeline" : 20
-    "Testing" : 10
+    "Planning" : 100
+    "LangChain" : 90
+    "LangGraph" : 70
 ```
 
 ## Completed Features
 
-### Core Components
-- ✅ Chat service (async processing, context retrieval, history management)
-- ✅ LLM integration (OpenAI, Bedrock, provider factory)
-- ✅ Basic Streamlit UI
-- ✅ Development environment (Docker, hot reloading, debugging)
-- ✅ Vector store migration (OpenSearch removal, Upstash Vector setup)
+### Architecture
+- ✅ LangGraph workflow implementation
+- ✅ State management with ChatState
+- ✅ Thread-based checkpointing
+- ✅ Source URL tracking
 
-### Recent Improvements
-- ✅ Data Stack implementation in CDK
-- ✅ Bedrock model access permissions
-- ✅ Vector store factory with Upstash integration
-- ✅ Lambda function scaffolding
+### Core Features
+- ✅ Two-node graph workflow
+- ✅ Thread ID support
+- ✅ Source attribution
+- ✅ Metadata handling
+
+### Infrastructure
+- ✅ Upstash vector store integration
+- ✅ Hybrid search implementation
+- ✅ Streaming responses
+- ✅ Session management
 
 ## In Progress
 
-### Data Pipeline Implementation
-- 🔄 Data processing Lambda function
-- 🔄 Vectorization Lambda function
-- 🔄 Upstash Vector integration testing
-- 🔄 Error handling and logging
+### LangGraph Features
+- 🔄 Thread persistence testing
+- 🔄 Response optimization
+- 🔄 Error recovery
+- 🔄 Memory scaling
 
-### Testing
-- [ ] Lambda function unit tests
-- [ ] Data pipeline integration tests
-- [ ] Vector store performance tests
-- [ ] Error scenario coverage
-
-### Optimization
-- [ ] Lambda cold start performance
-- [ ] Vector store query efficiency
-- [ ] Resource utilization
-- [ ] Pipeline throughput
-
-## Known Issues
-
-### High Priority
-- [ ] Lambda function error handling
-- [ ] Vector store connection management
-- [ ] Pipeline monitoring implementation
-- [ ] Integration test coverage
-
-### Medium Priority
-- [ ] Lambda performance optimization
-- [ ] Improve resource usage
-- [ ] Add pipeline performance monitoring
+### Infrastructure
+- [ ] Performance monitoring
+- [ ] Error handling
+- [ ] Load testing
 - [ ] Documentation updates
 
-## Next Actions
+## Next Steps
 
-### Immediate
-1. Complete Lambda function implementations
-2. Implement error handling and logging
-3. Set up monitoring and alerts
-4. Create integration tests
+### Immediate (This Week)
+1. Test thread ID persistence
+2. Optimize response streaming
+3. Add error recovery
+4. Update monitoring
 
-### Short-term
-1. Optimize Lambda performance
-2. Fine-tune vector store operations
-3. Enhance pipeline reliability
-4. Update documentation
+### Short-term (Next Week)
+1. Scale memory management
+2. Add graph nodes
+3. Improve error handling
+4. Update docs
 
 ## Testing Status
-- ✅ Basic service layer tests
-- ✅ Vector store integration tests
-- 🔄 Lambda function tests (in progress)
-- [ ] Pipeline integration tests
-- [ ] Performance tests
+- ✅ Basic graph workflow
+- ✅ Source attribution
+- 🔄 Thread persistence
+- [ ] Load testing
 
-## Key Metrics to Establish
-- Pipeline processing times
-- Lambda execution metrics
-- Vector store performance
-- Error rates and recovery times
-- Resource utilization
+## Key Metrics
+- Component conversion: 90%
+- Test coverage: 60%
+- Documentation: 80%
+- Response time: < 2s
 
-## Next Phase Preparation
-- Documentation: Data pipeline, vector store integration, Lambda functions
-- Infrastructure: Monitoring, logging, alerting
-- Testing: Pipeline validation, performance testing, load testing
-- Operations: Maintenance procedures, troubleshooting guides
+## Blockers
+- None currently
 
-## Infrastructure Updates
-- ✅ Data Stack creation
-- ✅ S3 bucket setup
-- ✅ Lambda function deployment
-- ✅ IAM role configuration
-- 🔄 Monitoring setup
+## Dependencies
+- LangChain >= 0.1.0
+- LangGraph >= 0.0.10
+- Upstash Vector >= 1.0.0
 
-## Vector Store Migration
-- ✅ OpenSearch removal
-- ✅ Upstash Vector integration
-- ✅ Factory pattern implementation
-- 🔄 Performance optimization
-- 🔄 Query efficiency improvements
+## Notes
+- Thread IDs now used for session tracking
+- Source URLs included in responses
+- Metadata handling improved
+- State persistence implemented

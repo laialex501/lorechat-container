@@ -1,4 +1,6 @@
 """Main chat interface page for LoreChat."""
+import uuid
+
 import streamlit as st
 from app import logger
 from app.chat.service import ChatMessage, ChatService
@@ -14,6 +16,8 @@ def initialize_session_state():
         st.session_state.provider = LLMProvider.Anthropic
     if "model_name" not in st.session_state:
         st.session_state.model_name = ClaudeModel.CLAUDE3_HAIKU
+    if "thread_id" not in st.session_state:
+        st.session_state.thread_id = str(uuid.uuid4())
 
 
 def get_available_models():
@@ -107,7 +111,8 @@ def render_chat_page():
                 response = st.write_stream(
                     chat_service.process_message(
                         prompt,
-                        st.session_state.messages
+                        st.session_state.messages,
+                        thread_id=st.session_state.thread_id
                     )
                 )
                 st.session_state.messages.append(

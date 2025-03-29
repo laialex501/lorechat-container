@@ -23,8 +23,8 @@ RUN apt-get update && \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements file
-COPY requirements.txt .
+# Copy requirements files
+COPY requirements.txt  ./
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -36,10 +36,8 @@ COPY . .
 COPY .env.dev .env
 
 # Create necessary directories
-RUN mkdir -p logs faiss
-
-# Set permissions
-RUN chmod -R 777 logs faiss
+RUN mkdir -p logs faiss && \
+    chmod -R 777 logs faiss
 
 # Expose Streamlit port
 EXPOSE 8501
@@ -48,7 +46,9 @@ EXPOSE 8501
 ENV STREAMLIT_SERVER_PORT=8501 \
     STREAMLIT_SERVER_ADDRESS=0.0.0.0 \
     STREAMLIT_BROWSER_GATHER_USAGE_STATS=false \
-    STREAMLIT_THEME_BASE="dark"
+    STREAMLIT_THEME_BASE="dark" \
+    STREAMLIT_SERVER_ENABLEWEBSOCKETCOMPRESSION=true \
+    STREAMLIT_SERVER_ENABLEXSRFPROTECTION=false
 
-# Command to run the application
-CMD ["streamlit", "run", "main.py"]
+# Command to run the application with auto-reload for development
+CMD ["streamlit", "run", "--server.runOnSave=true", "main.py"]

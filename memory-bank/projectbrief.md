@@ -1,53 +1,40 @@
 # LoreChat Project Brief
 
 ## Overview
-LoreChat is a Streamlit-based chatbot application for accessing and querying website content. It features a containerized Python Streamlit frontend deployable to AWS ECS, with backend LLM hosting and RAG handled separately.
+LoreChat is a Streamlit-based chatbot for querying website content, featuring containerized Python frontend deployable to AWS ECS. Uses LangChain for LLM operations and RAG, with Upstash Vector for storage.
 
 ## Core Requirements
-- Real-time chat interaction with website content
-- Session-based user interactions (no persistence)
-- Local vector database (FAISS) for development
-- Python 3.9+ with Streamlit, LangChain, and Docker
-- Flexible LLM integration (OpenAI or Amazon Bedrock)
-- AWS service integration readiness
-- Support for ~1000 concurrent users
-
-## Project Scope
-- Streamlit chat interface
-- LLM integration (OpenAI/Bedrock)
-- Local vector store (FAISS)
-- Docker development environment
-- Logging, monitoring, and testing
-- AWS integration preparation
+- Real-time chat with website content
+- Session-based interactions
+- LangChain integration
+- LangGraph-based workflows
+- AWS service integration
+- Support for ~50 concurrent users
 
 ## Key Technologies
 - Frontend: Streamlit
-- LLM Integration: LangChain
-- Vector Store: FAISS (dev)
-- Containerization: Docker
-- Cloud: AWS (ECS target)
-
-## Deployment
-- Dev: Local Docker, FAISS, OpenAI/Bedrock
-- Prod (Planned): AWS ECS, scalability optimizations
+- LLM: LangChain, OpenAI/Bedrock
+- Vector Store: Upstash Vector
+- Containerization: Docker/Finch
+- Cloud: AWS ECS
 
 ## Success Criteria
-1. Functional real-time chat interface
-2. LLM integration (OpenAI and Bedrock)
-3. Efficient local dev environment
-4. Comprehensive testing
-5. Production-ready containerization
-6. AWS deployment readiness
-
-## Timeline
-6-week plan: Setup, Core Dev, Features, Docker, Production Prep, AWS Integration
+1. LangChain-compatible components
+2. Graph-based conversation flows
+3. Efficient dev environment
+4. Production-ready deployment
+5. Comprehensive testing
 
 ## Key Challenges
-- LLM API reliability and costs
+- LLM API reliability
+- State management in graph workflows
 - Container performance
-- AWS integration complexity
-- Scalability
-- Dev environment consistency
+- AWS integration
+- Memory management with Streamlit
 
 ## Project Governance
-Git version control, Docker workflow, testing, documentation, code reviews
+- Git version control
+- Docker/Finch workflow
+- Testing (unit, integration, performance)
+- Documentation
+- Code reviews

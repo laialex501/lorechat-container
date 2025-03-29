@@ -1,9 +1,12 @@
 """LLM factory for creating LLM service instances."""
+from typing import Union
+
 from app import logger
 from app.services.llm.llm_base import (BaseLLMService, BaseModel, ClaudeModel,
                                        LLMProvider, OpenAIModel)
 from app.services.llm.llm_bedrock_service import BedrockService
 from app.services.llm.llm_openai_service import OpenAIService
+from langchain.chat_models.base import BaseChatModel
 
 
 class LLMFactory:
@@ -13,7 +16,7 @@ class LLMFactory:
     def create_llm_service(
         provider: LLMProvider = LLMProvider.Anthropic,
         model_name: BaseModel = ClaudeModel.CLAUDE3_SONNET
-    ) -> BaseLLMService:
+    ) -> Union[BaseLLMService, BaseChatModel]:
         """
         Create and return an LLM service instance.
         

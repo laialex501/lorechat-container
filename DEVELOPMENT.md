@@ -1,71 +1,51 @@
 # LoreChat Development Guide
 
-This guide covers the development setup, workflow, and deployment process for LoreChat.
+This guide covers the technical implementation and development workflow for LoreChat, focusing on the LangGraph-based architecture and core services.
 
 ## Prerequisites
 
-- Docker and Docker Compose (or Finch as alternative)
-- Python 3.9+
-- OpenAI API key (if using OpenAI)
-- AWS Account with Bedrock access (if using Bedrock)
-- AWS CLI installed and configured (if using Bedrock)
+### System Requirements
+- Python 3.9+ (required for LangGraph compatibility)
+- Docker or Finch (for containerized development)
+- AWS CLI (configured for Bedrock access)
+- Git (for version control)
 
-## Environment Setup
+### Service Dependencies
+- OpenAI API key (for GPT models)
+- AWS Bedrock access (for Claude models)
+  - Required models: Claude 3 Sonnet/Haiku
+  - Required regions: us-east-1, us-west-2
+- Upstash Vector account
+  - Required for production deployments
+  - Local development uses FAISS
 
-### Container Build Systems
+## Implementation Architecture
 
-The application supports two container build systems:
-
-#### Docker
-Traditional Docker setup using Docker Desktop and docker-compose.
-
-#### Finch
-Alternative container build system that doesn't require Docker Desktop:
-
-1. Install Finch:
-```bash
-brew install finch
+```
+LoreChat/
+├── app/                      # Core application
+│   ├── chat/                # Chat implementation
+│   │   ├── graph/          # LangGraph components
+│   │   │   ├── nodes.py    # Graph node implementations
+│   │   │   ├── state.py    # State management
+│   │   │   └── workflow.py # Graph configuration
+│   │   └── service.py      # High-level chat service
+│   ├── config/             # Application settings
+│   ├── services/           # Core services
+│   │   ├── embeddings/     # Embedding providers
+│   │   ├── llm/           # LLM implementations
+│   │   ├── prompts/       # System prompts
+│   │   └── vectorstore/    # Vector store services
+│   ├── monitoring/         # Logging & metrics
+│   └── ui/                # Streamlit interface
+├── docker/                 # Container configs
+├── tests/                 # Test suites
+└── sampledata/            # Sample content
 ```
 
-2. Start Finch:
-```bash
-finch vm start
-```
+## Development Setup
 
-The application's Dockerfiles and docker-compose files work with both systems, controlled via the `USE_FINCH` build argument (defaults to true).
-
-### LLM Configuration
-
-#### OpenAI Setup
-
-1. Get your OpenAI API key from [OpenAI Platform](https://platform.openai.com/api-keys)
-2. Set the key in your environment file
-
-#### Amazon Bedrock Setup
-
-1. Verify AWS CLI installation:
-```bash
-aws --version
-```
-
-2. Configure AWS credentials:
-```bash
-aws configure
-```
-
-3. Enable Bedrock Model Access:
-   - AWS Console > Amazon Bedrock
-   - Navigate to "Model access"
-   - Click "Manage model access"
-   - Enable "Anthropic Claude 3 Sonnet"
-   - Save changes
-
-4. Verify access:
-```bash
-aws bedrock list-foundation-models --region us-east-1
-```
-
-## Local Development
+### Local Environment
 
 1. Clone the repository:
 ```bash
@@ -73,27 +53,47 @@ git clone <repository-url>
 cd LoreChat
 ```
 
-2. Create `.env` file:
+2. Create virtual environment:
 ```bash
-# Environment
+python -m venv venv
+source venv/bin/activate  # Unix
+.\venv\Scripts\activate   # Windows
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Configure environment variables:
+```bash
+# Development Settings
 ENV=development
 DEBUG=true
 LOG_LEVEL=INFO
-VECTOR_STORE_PATH=dev_vectorstore/faiss
+PYTHONPATH=.
 
-# OpenAI Settings (if using openai provider)
-OPENAI_API_KEY=your_api_key_here
-OPENAI_MODEL=gpt-3.5-turbo
+# Vector Store Configuration
+VECTOR_STORE_PROVIDER=faiss  # or upstash for production
+VECTOR_STORE_PATH=local_vectorstore/faiss
+EMBEDDING_DIMENSIONS=1536  # For Claude embeddings
 
-# AWS Bedrock Settings (if using bedrock provider)
+# LLM Configuration
+LLM_PROVIDER=anthropic  # or openai
+LLM_MODEL=claude-3-sonnet-20240229  # or gpt-3.5-turbo
+OPENAI_API_KEY=your_key_here  # If using OpenAI
+
+# AWS Configuration
 AWS_DEFAULT_REGION=us-east-1
+AWS_PROFILE=default  # Optional: for multiple AWS profiles
 
-# Upstash Vector Settings (optional for development)
-UPSTASH_VECTOR_URL=your_upstash_url
-UPSTASH_VECTOR_TOKEN=your_upstash_token
+# Upstash Configuration (Production)
+VECTOR_STORE_PROVIDER=upstash
+UPSTASH_ENDPOINT=your_endpoint
+UPSTASH_TOKEN=your_token
 ```
 
-3. Start development environment:
+### Container Development
 
 Using Docker:
 ```bash
@@ -107,110 +107,382 @@ cd docker/dev
 finch compose up --build
 ```
 
-Access the application at http://localhost:8501
+## Core Implementation
 
-## Vector Store Development
+### LangGraph Architecture
 
-### Development Mode
-- Uses FAISS for local development
-- Initializes with content from `sampledata/`
-- Configurable via `VECTOR_STORE_PATH`
-- Persists between application restarts
+The chat system uses LangGraph for workflow orchestration. Key components:
 
-### Production Mode
-- Uses Upstash Vector
-- Integrates with AWS Lambda pipeline
-- Requires Upstash Vector credentials
+1. State Management:
+```python
+class ChatState(MessagesState):
+    """Thread-based chat state."""
+    messages: List[BaseMessage]
+    retrieved_docs: Optional[List[Document]]
+    thread_id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+```
 
-## Testing
+2. Graph Nodes:
+```python
+def retrieve_context(state: ChatState) -> Dict[str, Any]:
+    """Retrieve relevant documents for context."""
+    latest_message = state["messages"][-1]
+    docs = vector_store.get_relevant_documents(
+        latest_message.content,
+        search_type="hybrid",  # Uses dense + sparse vectors
+        k=3  # Number of documents to retrieve
+    )
+    return {"retrieved_docs": docs}
 
-Run the test suite:
+def generate_response(state: ChatState) -> Dict[str, Any]:
+    """Generate response with source attribution."""
+    context = format_context(state["retrieved_docs"])
+    messages = create_prompt(
+        system_template=prompt.system_template,
+        chat_history=state["messages"][:-1],
+        context=context,
+        query=state["messages"][-1].content
+    )
+    response = llm_service.invoke(messages)
+    return {"messages": [AIMessage(content=response)]}
+```
+
+3. Workflow Configuration:
+```python
+def create_chat_workflow(
+    llm_service: BaseLLMService,
+    vector_store: BaseVectorStoreService,
+    memory: Optional[MemorySaver] = None
+) -> Callable:
+    """Create and configure the chat workflow."""
+    workflow = StateGraph(ChatState)
+    
+    # Add nodes with error handling
+    workflow.add_node("retrieve", retrieve_context)
+    workflow.add_node("respond", generate_response)
+    
+    # Configure graph flow
+    workflow.set_entry_point("retrieve")
+    workflow.add_edge("retrieve", "respond")
+    
+    # Add memory management
+    if memory is None:
+        memory = MemorySaver()
+    
+    return workflow.compile(checkpointer=memory)
+```
+
+### Vector Store Implementation
+
+The system supports both local and cloud vector stores:
+
+1. Local Development (FAISS):
+```python
+class FAISSService(BaseVectorStoreService):
+    """Local vector store for development."""
+    def __init__(
+        self,
+        embedding_model: Optional[BaseEmbeddingModel] = None,
+        persist_path: str = "local_vectorstore/faiss"
+    ):
+        super().__init__(embedding_model)
+        self.persist_path = persist_path
+        self._initialize_store()
+
+    def _initialize_store(self) -> None:
+        """Initialize or load existing store."""
+        if os.path.exists(self.persist_path):
+            self._index = FAISS.load_local(
+                self.persist_path,
+                self.embeddings
+            )
+        else:
+            self._index = FAISS.from_documents(
+                [],  # Empty initial index
+                self.embeddings
+            )
+```
+
+2. Production (Upstash Vector):
+```python
+class UpstashService(BaseVectorStoreService):
+    """Production vector store with hybrid search."""
+    def __init__(
+        self,
+        embedding_model: Optional[BaseEmbeddingModel] = None,
+        **kwargs: Any
+    ):
+        super().__init__(embedding_model)
+        self._setup_upstash()
+        
+    def similarity_search(
+        self,
+        query: str,
+        k: int = 3,
+        **kwargs: Any,
+    ) -> List[Document]:
+        """Hybrid search with dense and sparse vectors."""
+        query_embedding = self.embeddings.embed_query(query)
+        sparse_vector = self.create_sparse_vector(query_embedding)
+        
+        results = self._index.query(
+            vector=query_embedding,
+            sparse_vector=sparse_vector,
+            top_k=k,
+            query_mode=QueryMode.HYBRID,
+            fusion_algorithm=FusionAlgorithm.RRF
+        )
+        
+        return self._process_results(results)
+```
+
+### LLM Service Architecture
+
+The system uses a factory pattern for LLM provider management:
+
+1. Provider Interface:
+```python
+class BaseLLMService(ABC):
+    """Abstract base for LLM providers."""
+    @abstractmethod
+    def invoke(
+        self,
+        messages: List[BaseMessage],
+        **kwargs: Any
+    ) -> Union[str, BaseMessage]:
+        """Generate LLM response."""
+        pass
+
+    @abstractmethod
+    def stream(
+        self,
+        messages: List[BaseMessage],
+        **kwargs: Any
+    ) -> Iterator[str]:
+        """Stream LLM response."""
+        pass
+```
+
+2. Factory Implementation:
+```python
+class LLMFactory:
+    """Factory for creating LLM services."""
+    @staticmethod
+    def create_llm_service(
+        provider: LLMProvider,
+        model_name: Union[ClaudeModel, OpenAIModel],
+        **kwargs: Any
+    ) -> BaseLLMService:
+        """Create appropriate LLM service."""
+        if provider == LLMProvider.Anthropic:
+            return BedrockService(model_name, **kwargs)
+        elif provider == LLMProvider.OPENAI:
+            return OpenAIService(model_name, **kwargs)
+        raise ValueError(f"Unsupported provider: {provider}")
+```
+
+3. Usage Example:
+```python
+# Initialize service
+llm_service = LLMFactory.create_llm_service(
+    provider=LLMProvider.Anthropic,
+    model_name=ClaudeModel.CLAUDE3_SONNET,
+    streaming=True,
+    temperature=0.7
+)
+
+# Create chat service
+chat_service = ChatService(
+    llm_service=llm_service,
+    vector_store=vectorstore,
+    persona_type=PersonaType.SCRIBE
+)
+```
+
+## Development Process
+
+### Running the Application
+
+1. Start in development mode:
 ```bash
-pytest tests/
+# Direct start
+streamlit run main.py --server.port=8501 --server.address=0.0.0.0
+
+# Or via Docker
+docker-compose -f docker/dev/docker-compose.yml up
 ```
 
-Test categories:
-- Unit tests: `tests/unit/`
-- Integration tests: `tests/integration/`
+2. Development server features:
+- Hot reload enabled
+- Debug logging
+- Memory profiling
+- Local vector store
 
-## Logging
+### Content Management
 
-- Logs stored in `logs/` directory
-- Console output in development mode
-- Configurable via LOG_LEVEL environment variable
-
-## Container Development
-
-Build and run development container:
-
-Using Docker:
+1. Adding new content:
 ```bash
-cd docker/dev
-docker-compose up --build
-```
+# Add HTML files
+cp your_content.html sampledata/
 
-Using Finch:
+### 4. Code Style
+
+The project uses:
+- flake8 for linting
+- black for formatting
+- mypy for type checking
+
+Run style checks:
 ```bash
-cd docker/dev
-finch compose up --build
+flake8 app/
+black app/
+mypy app/
 ```
 
-Note: Configured for ARM64 architecture for optimal performance.
+## System Monitoring
 
-## CDK Deployment
+### Logging System
 
-The CDK stack supports both Docker and Finch.
+1. Configuration:
+```python
+# config/logging.py
+LOGGING_CONFIG = {
+    "version": 1,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+            "level": "DEBUG"
+        },
+        "file": {
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": "logs/app.log",
+            "maxBytes": 1048576,
+            "backupCount": 5,
+            "formatter": "json"
+        }
+    },
+    "formatters": {
+        "standard": {
+            "format": "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+        },
+        "json": {
+            "class": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "format": "%(asctime)s %(levelname)s %(name)s %(message)s"
+        }
+    }
+}
+```
 
-Using Docker:
+2. Usage:
+```python
+from app.monitoring import logger
+
+# Component logging
+logger.info("Processing message", extra={
+    "thread_id": state.thread_id,
+    "component": "chat_service",
+    "action": "process_message"
+})
+
+# Error tracking
+try:
+    result = llm_service.invoke(messages)
+except Exception as e:
+    logger.error(
+        "LLM invocation failed",
+        exc_info=True,
+        extra={
+            "component": "llm_service",
+            "provider": llm_service.provider
+        }
+    )
+    raise
+```
+
+### Performance Metrics
+
+1. Key Metrics:
+```python
+METRICS = {
+    "response_time": Histogram(
+        "chat_response_time_seconds",
+        "Time taken to generate response",
+        buckets=(0.1, 0.5, 1.0, 2.0, 5.0)
+    ),
+    "token_usage": Counter(
+        "llm_token_usage_total",
+        "Total tokens used by LLM",
+        ["model", "type"]
+    ),
+    "vector_ops": Counter(
+        "vector_store_operations_total",
+        "Vector store operation count",
+        ["operation", "status"]
+    ),
+    "memory_usage": Gauge(
+        "chat_memory_bytes",
+        "Memory usage per chat session",
+        ["thread_id"]
+    )
+}
+```
+
+2. Collection:
+```python
+# Measure response time
+with METRICS["response_time"].time():
+    response = chat_service.process_message(query)
+
+# Track token usage
+METRICS["token_usage"].labels(
+    model=llm_service.model_name,
+    type="completion"
+).inc(response.usage.completion_tokens)
+
+# Monitor vector operations
+METRICS["vector_ops"].labels(
+    operation="search",
+    status="success"
+).inc()
+```
+
+## Deployment
+
+### Local Docker Build
+
+Build production image:
 ```bash
-unset CDK_DOCKER
-export USE_FINCH=false
-cdk deploy
+cd docker/prod
+docker build -t lorechat:latest .
 ```
 
-Using Finch:
+### AWS Deployment
+
+See [LoreChatCDK](https://github.com/laialex501/lorechat-cdk) for cloud deployment.
+
+## Troubleshooting
+
+### Common Issues
+
+1. Vector Store Initialization
 ```bash
-# Start Finch VM if needed
-finch vm start
-
-# Configure CDK
-export CDK_DOCKER=finch
-export USE_FINCH=true
-cdk deploy
+# Clear local store
+rm -rf local_vectorstore/faiss/*
 ```
 
-Environment variables:
-- CDK_DOCKER: Container build tool selection
-- USE_FINCH: Container build process configuration
-
-## Project Structure
-
-```
-LoreChat/
-├── app/
-│   ├── chat/           # Chat session management
-│   ├── config/         # Configuration settings
-│   ├── services/       # Core services
-│   │   ├── embeddings/ # Embedding services
-│   │   ├── llm/       # LLM providers
-│   │   └── vectorstore/# Vector store implementations
-│   ├── monitoring/     # Logging and metrics
-│   └── ui/            # Streamlit UI components
-├── docker/
-│   ├── dev/           # Development environment
-│   └── prod/          # Production environment
-├── tests/             # Test suites
-│   ├── integration/   # Integration tests
-│   └── unit/         # Unit tests
-├── sampledata/        # Sample HTML content
-└── main.py           # Application entry point
+2. Session State
+```bash
+# Clear Streamlit cache
+streamlit cache clear
 ```
 
-## Contributing
+3. Container Issues
+```bash
+# Rebuild with no cache
+docker-compose build --no-cache
+```
 
-1. Create a feature branch
-2. Make your changes
-3. Run tests
-4. Submit a pull request
+## Architecture
 
-For detailed architecture and design information, see the [README.md](README.md).
+See [README.md](README.md) for architecture details.

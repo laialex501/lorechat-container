@@ -1,11 +1,12 @@
 """OpenSearch vector store service implementation."""
-from typing import Optional
+from typing import Any, List, Optional
 
 import boto3
 from app import logger
 from app.config.settings import settings
 from app.services.embeddings.bedrock import BedrockEmbeddingModel
 from app.services.vectorstore.base import BaseVectorStoreService
+from langchain.schema import Document
 from langchain_community.vectorstores import OpenSearchVectorSearch
 from opensearchpy import AWSV4SignerAuth
 
@@ -36,32 +37,32 @@ class OpenSearchService(BaseVectorStoreService):
             verify_certs=True,
             is_aoss=False
         )
-    
-    def get_relevant_context(self, query: str) -> Optional[str]:
-        """Get relevant context for a query from OpenSearch.
+
+    def similarity_search(
+        self, query: str, k: int = 4, **kwargs: Any
+    ) -> List[Document]:
+        """
+        Perform similarity search using OpenSearch.
         
         Args:
-            query: The query string
+            query: Query text
+            k: Number of results to return
+            **kwargs: Additional arguments to pass to underlying vectorstore
             
         Returns:
-            str: Relevant context if found, None otherwise
+            List of Documents most similar to the query
         """
         try:
-            # Use similarity_search to get relevant documents
-            docs = self.vectorstore.similarity_search(
-                query,
-                k=3  # Get top 3 most similar
-            )
-            
-            if not docs:
-                return None
-            
-            # Extract and combine the page content from documents
-            relevant_texts = [doc.page_content for doc in docs]
-            return "\n\n".join(relevant_texts)
-            
+            return self.vectorstore.similarity_search(query, k=k, **kwargs)
         except Exception as e:
-            # Log error and return None
+            logger.error(f"Error in similarity search: {str(e)}", exc_info=True)
+            return []
+
+    def get_relevant_context(self, query: str) -> Optional[str]:
+        """Get relevant context for a query from OpenSearch."""
+        try:
+            return super().get_relevant_context(query)
+        except Exception as e:
             logger.error(
                 f"Error getting relevant context: {str(e)}", 
                 exc_info=True

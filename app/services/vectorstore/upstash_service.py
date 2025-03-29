@@ -2,28 +2,45 @@
 
 import json
 import math
-from typing import List, Optional
+from typing import Any, List, Optional
 
 import boto3
 from app import logger
 from app.config.constants import Environment
 from app.config.settings import settings
-from app.services.embeddings.bedrock import BedrockEmbeddingModel
+from app.services.embeddings.bedrock import (BaseEmbeddingModel,
+                                             BedrockEmbeddingModel)
 from app.services.vectorstore.base import BaseVectorStoreService
+from langchain.schema import Document
+from pydantic import ConfigDict, PrivateAttr
 from upstash_vector import Index
 from upstash_vector.types import FusionAlgorithm, QueryMode, SparseVector
 
 
 class UpstashService(BaseVectorStoreService):
-    """Upstash vector store service implementation for production."""
+    """
+    Upstash vector store service implementation using LangChain's VectorStore.
+    Optimizes search using sparse vectors and hybrid search.
+    """
     
-    def __init__(self):
-        """Initialize Upstash service."""
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    _index: Index = PrivateAttr()
+    
+    def __init__(self, embedding_model: Optional[BaseEmbeddingModel] = None):
+        """Initialize Upstash service with optional embedding model."""
         logger.info("Initializing Upstash vector store...")
-        self.embeddings = BedrockEmbeddingModel(settings.EMBEDDING_DIMENSIONS)
         
-        # Validate required settings
-        if (settings.ENV == Environment.PRODUCTION):
+        # First initialize Pydantic with embedding model
+        embedding = embedding_model or BedrockEmbeddingModel(settings.EMBEDDING_DIMENSIONS)
+        super().__init__(embedding_function=embedding)
+        
+        # Then set up Upstash client
+        endpoint, token = self._get_credentials()
+        self._index = Index(url=endpoint, token=token)
+
+    def _get_credentials(self) -> tuple[str, str]:
+        """Get Upstash credentials based on environment."""
+        if settings.ENV == Environment.PRODUCTION:
             # Production uses secrets
             if not settings.UPSTASH_ENDPOINT_SECRET_NAME:
                 raise ValueError("UPSTASH_ENDPOINT_SECRET_NAME is required")
@@ -49,7 +66,7 @@ class UpstashService(BaseVectorStoreService):
             token = json.loads(token_secret['SecretString'])['token']
 
         # We can specify directly in local dev
-        elif (settings.ENV == Environment.DEVELOPMENT):
+        elif settings.ENV == Environment.DEVELOPMENT:
             if not settings.UPSTASH_ENDPOINT:
                 raise ValueError("UPSTASH_ENDPOINT is required")
             if not settings.UPSTASH_TOKEN:
@@ -58,8 +75,7 @@ class UpstashService(BaseVectorStoreService):
             endpoint = settings.UPSTASH_ENDPOINT
             token = settings.UPSTASH_TOKEN
             
-        # Initialize Upstash client
-        self.index = Index(url=endpoint, token=token)
+        return endpoint, token
 
     def create_sparse_vector(
         self,
@@ -114,65 +130,67 @@ class UpstashService(BaseVectorStoreService):
         
         return SparseVector(indices, values)
     
-    def get_relevant_context(self, query: str) -> Optional[str]:
-        """Get relevant context for a query.
+    def similarity_search(
+        self,
+        query: str,
+        k: int = 3,
+        **kwargs: Any,
+    ) -> List[Document]:
+        """
+        Search for similar documents using hybrid search with sparse vectors.
         
         Args:
-            query: The query string
+            query: Query string
+            k: Number of documents to return
+            **kwargs: Additional arguments passed to search
             
         Returns:
-            str: Relevant context if found, None otherwise
+            List of Documents most similar to the query
         """
         try:
             # Get query embedding
             query_embedding = self.embeddings.embed_query(query)
 
-            # Get sparse vector
+            # Get sparse vector for hybrid search
             sparse_vector = self.create_sparse_vector(query_embedding)
             logger.info(f"Sparsity ratio: {len(sparse_vector.indices) / len(query_embedding)}")
             
             # Search index
-            results = self.index.query(
+            results = self._index.query(
                 vector=query_embedding,
                 sparse_vector=sparse_vector,
-                top_k=3,  # Get top 3 most similar
+                top_k=k,
                 include_metadata=True,
+                include_data=True,
                 query_mode=QueryMode.HYBRID,
                 fusion_algorithm=FusionAlgorithm.RRF,
             )
             
             if not results:
-                return None
+                return []
             
-            # Extract and combine the content from results with metadata
-            relevant_texts = []
-            source_urls = set()  # Track unique URLs
-            
+            # Convert to LangChain Documents
+            documents = []
             for result in results:
+                # Get content from data field
+                content = result.data
+                if not content:
+                    logger.warning(f"No content found for document {result.id}")
+                    continue
+                    
                 metadata = result.metadata or {}
-                content = result.vector
-                url = metadata.get('url', 'Unknown source')
-                
-                # Add content with minimal metadata inline
-                relevant_texts.append(f"{content}\n")
-                
-                # Track URL if available
-                if url != 'Unknown source':
-                    source_urls.add(url)
+                documents.append(
+                    Document(
+                        page_content=content,
+                        metadata=metadata
+                    )
+                )
             
-            # Combine content and add sources at the end
-            combined_text = "".join(relevant_texts)
-            if source_urls:
-                combined_text += "\nSources:\n"
-                for url in source_urls:
-                    combined_text += f"- {url}\n"
-            
-            return combined_text
+            return documents
             
         except Exception as e:
-            # Log error and return None
             logger.error(
-                f"Error getting relevant context: {str(e)}", 
+                f"Error in similarity search: {str(e)}", 
                 exc_info=True
             )
-            return None
+            return []

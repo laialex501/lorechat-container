@@ -10,7 +10,7 @@ from langchain_aws import BedrockEmbeddings
 class BedrockEmbeddingModel(BaseEmbeddingModel):
     """Bedrock embedding model implementation."""
 
-    def __init__(self, dimensions: int):
+    def __init__(self, dimensions: int = settings.EMBEDDING_DIMENSIONS):
         super().__init__(dimensions)
         logger.info("Initializing Bedrock embedding model...")
         self.embeddings = BedrockEmbeddings(
@@ -31,15 +31,15 @@ class BedrockEmbeddingModel(BaseEmbeddingModel):
         """
         return self.embeddings.embed_query(text)
 
-    def embed_documents(self, documents: List[str]) -> List[List[float]]:
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """
         Embed a list of documents.
 
         Args:
-            documents (List[str]): The documents to embed.
+            texts (List[str]): The documents to embed.
 
         Returns:
             List[List[float]]: A list of embedding vectors, each of length
                 self.dimensions.
         """
-        return self.embeddings.embed_documents(documents)
+        return self.embeddings.embed_documents(texts)

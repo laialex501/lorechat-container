@@ -1,7 +1,8 @@
 """Base class for embedding models."""
-from abc import ABC, abstractmethod
 from enum import Enum
 from typing import List
+
+from langchain.embeddings.base import Embeddings
 
 
 class TitanModel(str, Enum):
@@ -9,13 +10,13 @@ class TitanModel(str, Enum):
     TITAN_EMBED_V2 = "amazon.titan-embed-text-v2:0"
 
 
-class BaseEmbeddingModel(ABC):
-    """Abstract base class for embedding models."""
+class BaseEmbeddingModel(Embeddings):
+    """Base class for embedding models using LangChain's Embeddings."""
 
     def __init__(self, dimensions: int):
+        super().__init__()
         self.dimensions = dimensions
 
-    @abstractmethod
     def embed_query(self, text: str) -> List[float]:
         """
         Embed a single piece of text.
@@ -26,17 +27,16 @@ class BaseEmbeddingModel(ABC):
         Returns:
             List[float]: The embedding vector of length self.dimensions.
         """
-        pass
+        raise NotImplementedError
 
-    @abstractmethod
-    def embed_documents(self, documents: List[str]) -> List[List[float]]:
+    def embed_documents(self, texts: List[str]) -> List[List[float]]:
         """
         Embed a list of documents.
 
         Args:
-            documents (List[str]): The documents to embed.
+            texts (List[str]): The documents to embed.
 
         Returns:
             List[List[float]]: A list of embedding vectors.
         """
-        pass
+        raise NotImplementedError

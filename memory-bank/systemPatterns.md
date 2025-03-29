@@ -1,153 +1,126 @@
 # LoreChat System Patterns
 
-## Stack Organization
-```mermaid
-graph TD
-    subgraph "Stack Organization"
-        A[Infrastructure Stack] --> B[Service Stack]
-        A --> C[Data Stack]
-        A --> D[Monitoring Stack]
-    end
-```
-
 ## Core Architecture
 
-### System Overview
 ```mermaid
 graph TD
-    A[Streamlit UI] --> B[Chat Manager]
-    B --> C[LLM Service]
-    B --> D[Vector Store]
-    
-    C --> E[OpenAI/Bedrock]
-    D --> F[Upstash Vector]
-    
-    G[Configuration] --> A
-    G --> B
-    G --> C
-    G --> D
-```
-
-### Key Components
-```mermaid
-graph TD
-    subgraph Frontend
-        A[UI Layer]
-        B[Stream Display]
+    subgraph "Frontend"
+        A[Streamlit UI]
+        B[Session State]
     end
     
-    subgraph Backend
-        C[Chat Service]
-        D[LLM Service]
-        E[Vector Store Service]
+    subgraph "LangGraph Layer"
+        C[State Manager]
+        D[Graph Nodes]
+        E[Checkpointer]
     end
     
-    subgraph Infrastructure
-        F[Logging]
-        G[Config]
+    subgraph "Infrastructure"
+        F[Vector Store]
+        G[LLM Provider]
         H[Monitoring]
     end
     
     A --> B
     B --> C
     C --> D
-    C --> E
     D --> F
-    E --> F
+    D --> G
+    E --> C
 ```
 
-## Core Design Patterns
+## Key Design Patterns
 
-### 1. Service Layer
-- Abstract interfaces for LLM with factory-based instantiation
-- Factory-based vector store implementation with external Vector DB
-- Streaming response handling
-- Data processing pipeline with Lambda functions
+### 1. Graph State
+```python
+class ChatState(MessagesState):
+    messages: List[BaseMessage]
+    retrieved_docs: List[Document]
+```
 
-### 2. Data Flow
+### 2. Node Implementation
+```python
+def retrieve_context(state: ChatState):
+    """Get relevant docs from vector store."""
+    docs = vector_store.get_relevant_documents(
+        state["messages"][-1].content
+    )
+    return {"retrieved_docs": docs}
+
+def generate_response(state: ChatState):
+    """Generate response with sources."""
+    sources = [doc.metadata["url"] for doc in state["retrieved_docs"]]
+    response = llm.invoke(format_prompt(state))
+    return {"messages": [AIMessage(content=response + "\n\nSources: " + sources)]}
+```
+
+### 3. Graph Workflow
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant UI as UI
-    participant C as Chat
-    participant L as LLM
-    participant V as VectorStore
+    participant S as State
+    participant R as Retrieve
+    participant G as Generate
     
-    U->>UI: Question
-    UI->>C: Process
-    C->>V: Get Context (Sync)
-    V-->>C: Context
-    C->>L: Generate
-    L-->>UI: Stream Response
+    U->>S: Message
+    S->>R: Get Context
+    R-->>S: Update Docs
+    S->>G: Generate
+    G-->>S: Update Messages
+    S->>U: Response
 ```
-
-### 3. Data Processing Pipeline
-```mermaid
-sequenceDiagram
-    participant S as Source Bucket
-    participant P as Processing Lambda
-    participant B as Processed Bucket
-    participant V as Vectorization Lambda
-    participant U as Vector DB
-    participant BE as Bedrock
-
-    S->>P: New file event
-    P->>P: Clean & prepare data
-    P->>B: Store processed data
-    B->>V: Processed file event
-    V->>BE: Generate embeddings
-    V->>U: Store vectors
-```
-
-### 4. Key Patterns
-- Configuration management with Pydantic
-- Dependency injection for services
-- Repository pattern for vector store
-- Error handling and recovery
-- State management (session-based)
-- Event-driven data processing
-- Secure credential management
 
 ## Infrastructure
 
-### AWS Integration
+### Service Integration
 ```mermaid
 graph TD
-    subgraph VPC
-        A[ECS Service]
-        B[Lambda Functions]
+    subgraph "AWS"
+        A[Streamlit App]
+        B[Bedrock]
+        C[Secrets]
     end
     
-    subgraph AWS Services
-        C[S3 Buckets]
-        D[Bedrock]
-        E[Secrets Manager]
+    subgraph "Vector Store"
+        D[Upstash]
+        E[Hybrid Search]
     end
     
-    subgraph External
-        F[Upstash Vector]
-    end
-    
-    A -->|Query| F
-    B -->|Read/Write| C
-    B -->|Generate Embeddings| D
-    B -->|Get Credentials| E
-    B -->|Store Vectors| F
+    A -->|Query| D
+    A -->|Generate| B
+    D -->|Metadata| A
 ```
 
-### Development
-- Docker-based local environment
-- Hot reloading enabled
-- Comprehensive testing setup
-- Monitoring and logging
-- Lambda function development
-- Data pipeline testing
+## Development Guidelines
 
-### Security
-- Environment-based configuration
-- Secret management
-- Input validation
-- Resource limits
-- AWS IAM integration
-- S3 bucket policies
-- Lambda execution roles
+### Graph Development
+1. State Management
+   - Define clear state schema
+   - Use typed state classes
+   - Handle state updates atomically
+
+2. Node Design
+   - Pure functions for nodes
+   - Clear input/output contracts
+   - Handle errors gracefully
+
+3. Checkpointing
+   - Use thread IDs for sessions
+   - Implement state persistence
+   - Handle recovery cases
+
+### Testing Strategy
+1. Node Testing
+   - Test state transitions
+   - Validate metadata handling
+   - Check error cases
+
+2. Graph Testing
+   - Test workflow paths
+   - Validate checkpointing
+   - Monitor performance
+
+3. Integration Testing
+   - Test source attribution
+   - Validate thread persistence
+   - Check streaming behavior
