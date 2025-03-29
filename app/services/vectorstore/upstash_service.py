@@ -133,7 +133,7 @@ class UpstashService(BaseVectorStoreService):
     def similarity_search(
         self,
         query: str,
-        k: int = 3,
+        k: int = 1,
         **kwargs: Any,
     ) -> List[Document]:
         """

@@ -78,7 +78,7 @@ class BaseVectorStoreService(VectorStore, BaseRetriever, BaseModel):
             Optional[str]: Relevant context if found, None otherwise
         """
         # Use LangChain's similarity_search under the hood
-        docs = self.similarity_search(query, k=3)
+        docs = self.similarity_search(query, k=1)
         if not docs:
             return None
             

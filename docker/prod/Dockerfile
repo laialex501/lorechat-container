@@ -1,8 +1,7 @@
-# syntax=docker/dockerfile:1
+# Build stage
 ARG USE_FINCH=true
 
-# Build stage
-FROM --platform=linux/amd64 python:3.9-slim as builder
+FROM --platform=linux/amd64 python:3.9
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \

@@ -130,7 +130,7 @@ def retrieve_context(state: ChatState) -> Dict[str, Any]:
     docs = vector_store.get_relevant_documents(
         latest_message.content,
         search_type="hybrid",  # Uses dense + sparse vectors
-        k=3  # Number of documents to retrieve
+        k=1  # Number of documents to retrieve
     )
     return {"retrieved_docs": docs}
 

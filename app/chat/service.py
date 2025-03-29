@@ -25,7 +25,7 @@ class ChatService:
     3. Response generation with proper streaming
     4. Persona-based interactions
     """
-    
+
     def __init__(
         self,
         llm_service: BaseLLMService,
@@ -33,30 +33,30 @@ class ChatService:
         persona_type: PersonaType = PersonaType.SCRIBE
     ):
         """Initialize chat service with required dependencies."""
-        # Store services for persona changes
+        # Store services and persona
         self.llm_service = llm_service
         self.vector_store = vector_store
-        
+        self.persona_type = persona_type
+
         # Create memory saver for graph checkpointing
         self.memory = MemorySaver()
-        
+
         # Create workflow
+        self._create_workflow()
+
+    def _create_workflow(self) -> None:
+        """Create or recreate the workflow with current settings."""
         self.workflow = create_chat_workflow(
             llm_service=self.llm_service,
             vector_store=self.vector_store,
-            persona_type=persona_type,
+            persona_type=self.persona_type,
             memory=self.memory
         )
 
     def change_persona(self, persona_type: PersonaType) -> None:
         """Change the chat persona."""
-        # Create new workflow with updated persona
-        self.workflow = create_chat_workflow(
-            llm_service=self.llm_service,
-            vector_store=self.vector_store,
-            persona_type=persona_type,
-            memory=self.memory
-        )
+        self.persona_type = persona_type
+        self._create_workflow()
 
     def _format_history(self, history: List[ChatMessage]) -> List[BaseMessage]:
         """Format chat history into LangChain messages."""
@@ -76,26 +76,26 @@ class ChatService:
     ) -> Generator:
         """
         Process a message and return a streaming response.
-        
+ 
         Args:
             query: Current user query
             history: Optional chat history
             thread_id: Optional thread ID for conversation tracking
-            
+        
         Returns:
             Generator for streaming response
         """
         # Format history and create input message
         formatted_history = self._format_history(history) if history else []
         input_message = HumanMessage(content=query)
-        
+
         # Create config with thread ID
         config = {
             "configurable": {
                 "thread_id": thread_id or "default"
             }
         }
-        
+
         # Stream through workflow with config
         for event in self.workflow.stream(
             {"messages": formatted_history + [input_message]},

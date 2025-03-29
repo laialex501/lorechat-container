@@ -1,8 +1,7 @@
-# syntax=docker/dockerfile:1
+# Use Python 3.9 as base image
 ARG USE_FINCH=true
 
-# Use Python 3.9 as base image
-FROM --platform=linux/amd64 python:3.9-slim
+FROM --platform=linux/amd64 python:3.9
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1 \
