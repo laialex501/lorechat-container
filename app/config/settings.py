@@ -56,13 +56,13 @@ class Settings(BaseSettings):
     
     # Vector Store - Persistent storage for embeddings
     VECTOR_STORE_PATH: Path = Field(
-        BASE_DIR / "dev_vectorstore" / "faiss",
+        BASE_DIR / "local_vectorstore" / "faiss",
         env="VECTOR_STORE_PATH"
     )
     # Vector store implementation to use for this application
-    # Set this enviornmental variable to test different stores in local
+    # Set this environmental variable to test different stores in local
     VECTOR_STORE_PROVIDER: Literal["faiss", "opensearch", "upstash"] = Field(
-        "faiss",
+        "upstash" if ENV == "production" else "faiss",
         env="VECTOR_STORE_PROVIDER"
     )
 

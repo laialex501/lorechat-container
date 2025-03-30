@@ -276,8 +276,10 @@ class LLMFactory:
         """Create appropriate LLM service."""
         if provider == LLMProvider.Anthropic:
             return BedrockService(model_name, **kwargs)
-        elif provider == LLMProvider.OPENAI:
+        elif provider == LLMProvider.OpenAI:
             return OpenAIService(model_name, **kwargs)
+        elif provider == LLMProvider.Deepseek:
+            return BedrockService(model_name, **kwargs)
         raise ValueError(f"Unsupported provider: {provider}")
 ```
 
@@ -286,7 +288,7 @@ class LLMFactory:
 # Initialize service
 llm_service = LLMFactory.create_llm_service(
     provider=LLMProvider.Anthropic,
-    model_name=ClaudeModel.CLAUDE3_SONNET,
+    model_name=ClaudeModel.CLAUDE3_5_HAIKU,
     streaming=True,
     temperature=0.7
 )

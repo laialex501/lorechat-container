@@ -22,14 +22,20 @@ class OpenAIModel(BaseModel):
 
 class ClaudeModel(BaseModel):
     """Available Claude models via Bedrock."""
-    CLAUDE3_HAIKU = "anthropic.claude-3-haiku-20240307-v1:0"
-    CLAUDE3_SONNET = "anthropic.claude-3-sonnet-20240229-v1:0"
+    CLAUDE3_5_HAIKU = "anthropic.claude-3-5-haiku-20241022-v1:0"
+    CLAUDE3_5_SONNET = "anthropic.claude-3-5-sonnet-20241022-v2:0"
+
+
+class DeepseekModel(BaseModel):
+    """Available DeepSeek models via Bedrock."""
+    DEEPSEEK_R1 = "deepseek.r1-v1:0"
 
 
 class LLMProvider(str, Enum):
     """Available LLM providers."""
-    OPENAI = "OpenAi"
+    OpenAI = "OpenAi"
     Anthropic = "Anthropic"
+    Deepseek = "DeepSeek"
 
 
 class BaseLLMService(BaseChatModel):

@@ -3,7 +3,7 @@ from typing import Any, Generator, List
 
 from app import logger
 from app.config.settings import settings
-from app.services.llm.llm_base import BaseLLMService, ClaudeModel
+from app.services.llm.llm_base import BaseLLMService, BaseModel, ClaudeModel
 from langchain.schema import BaseMessage
 from langchain.schema.messages import AIMessageChunk
 from langchain_aws.chat_models.bedrock import ChatBedrock
@@ -21,7 +21,7 @@ class BedrockService(ChatBedrock, BaseLLMService):
         """Return type of LLM."""
         return "Bedrock LLM integration"
 
-    def __init__(self, model: ClaudeModel = ClaudeModel.CLAUDE3_HAIKU):
+    def __init__(self, model: BaseModel = ClaudeModel.CLAUDE3_5_HAIKU):
         """Initialize the Bedrock service with model configuration."""
         if not settings.AWS_DEFAULT_REGION:
             raise ValueError("AWS region is not configured")

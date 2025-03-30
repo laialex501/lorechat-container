@@ -1,79 +1,116 @@
 """FAISS vector store service implementation."""
-import os
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
+import faiss
 from app import logger
-from app.config.constants import Environment
 from app.config.settings import settings
-from app.services.embeddings.bedrock import (BaseEmbeddingModel,
-                                             BedrockEmbeddingModel)
+from app.services.embeddings.bedrock import BaseEmbeddingModel
 from app.services.vectorstore.base import BaseVectorStoreService
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores.faiss import FAISS
+from langchain_community.docstore.base import Docstore
+from langchain_community.docstore.in_memory import InMemoryDocstore
+from pydantic import ConfigDict, PrivateAttr
 
 
-class FAISSService(FAISS, BaseVectorStoreService):
+class FAISSService(BaseVectorStoreService):
     """
-    FAISS vector store service implementation for development.
-    Uses LangChain's FAISS implementation with our custom initialization.
+    FAISS vector store service implementation.
+    Uses LangChain's FAISS implementation as an internal implementation.
     """
     
-    def __init__(self, embedding_model: Optional[BaseEmbeddingModel] = None):
-        """Initialize FAISS service with optional embedding model."""
-        logger.info("Initializing FAISS vector store...")
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+    _faiss: FAISS = PrivateAttr()
+    
+    def __init__(
+        self,
+        embedding_function: BaseEmbeddingModel,
+        index: Any = None,
+        docstore: Docstore = InMemoryDocstore(),
+        index_to_docstore_id: Dict[int, str] = {}
+    ):
+        """Initialize FAISS service."""
+        # Initialize BaseVectorStoreService first
+        super().__init__(embedding_function=embedding_function)
         
-        # Set up embeddings - either use provided model or create default
-        embeddings = embedding_model or BedrockEmbeddingModel(settings.EMBEDDING_DIMENSIONS)
-        super().__init__(embedding_function=embeddings)
-        
-        # Initialize text splitter for sample data
-        self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,
-            chunk_overlap=200,
-            length_function=len,
+        # Initialize internal FAISS instance
+        self._faiss = FAISS(
+            embedding_function=embedding_function,
+            index=index or faiss.IndexFlatL2(settings.EMBEDDING_DIMENSIONS),
+            docstore=docstore,
+            index_to_docstore_id=index_to_docstore_id
         )
-        
-        # Load existing index or initialize with sample data
-        self._load_or_init_index()
-    
-    def _load_or_init_index(self):
-        """Load existing index or initialize with sample data."""
-        try:
-            if os.path.exists(settings.VECTOR_STORE_PATH):
-                # Load existing index
-                self = FAISS.load_local(
-                    settings.VECTOR_STORE_PATH,
-                    self.embeddings
-                )
-                logger.info("Loaded existing FAISS index")
-                return
-            
-            # Initialize with sample data in development
-            if settings.ENV == Environment.DEVELOPMENT:
-                self._init_with_sample_data()
-                
-        except Exception as e:
-            logger.error(f"Error loading FAISS index: {str(e)}")
 
-    def _init_with_sample_data(self):
-        """Initialize development vector store with sample data."""
-        logger.info("Initializing development vector store...")
+    def similarity_search(
+        self,
+        query: str,
+        k: int = 1,
+        **kwargs: Any,
+    ) -> List[Document]:
+        """Perform similarity search using internal FAISS instance."""
+        return self._faiss.similarity_search(query, k=k, **kwargs)
+
+    def add_texts(
+        self,
+        texts: List[str],
+        metadatas: Optional[List[dict]] = None,
+        **kwargs: Any,
+    ) -> List[str]:
+        """Add texts using internal FAISS instance."""
+        return self._faiss.add_texts(texts, metadatas=metadatas, **kwargs)
+
+    def get_relevant_context(self, query: str) -> Optional[str]:
+        """
+        Get relevant context for a query from the vector store.
+        Implements BaseVectorStoreService interface method.
+        """
+        docs = self.similarity_search(query, k=2)
+        if not docs:
+            return None
+            
+        # Format the results
+        relevant_texts = []
+        source_urls = set()
         
-        # Read and process sample data
+        for doc in docs:
+            relevant_texts.append(f"{doc.page_content}\n")
+            if doc.metadata.get('url'):
+                source_urls.add(doc.metadata['url'])
+        
+        # Combine content and add sources
+        combined_text = "".join(relevant_texts)
+        if source_urls:
+            combined_text += "\nSources:\n"
+            for url in source_urls:
+                combined_text += f"- {url}\n"
+                
+        return combined_text
+
+    @staticmethod
+    def _get_sample_documents() -> List[Document]:
+        """Get sample documents for development initialization."""
+        logger.info("Loading sample data for development...")
         documents = []
         sample_dir = settings.BASE_DIR / "sampledata"
-        
+
         if not sample_dir.exists():
             logger.warning(f"Sample data directory not found: {sample_dir}")
-            return
+            return documents
         
+        # Initialize text splitter
+        text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=1000,
+            chunk_overlap=100,
+            length_function=len,
+        )
+
         for file_path in sample_dir.glob("*.html"):
             try:
                 with open(file_path, "r", encoding="utf-8") as f:
                     content = f.read()
                     # Split content into chunks
-                    chunks = self.text_splitter.split_text(content)
+                    chunks = text_splitter.split_text(content)
                     # Create documents with metadata
                     for i, chunk in enumerate(chunks):
                         documents.append(
@@ -89,43 +126,5 @@ class FAISSService(FAISS, BaseVectorStoreService):
             except Exception as e:
                 logger.error(f"Error reading {file_path}: {str(e)}")
                 continue
-        
-        if documents:
-            # Initialize FAISS index with documents
-            self = FAISS.from_documents(
-                documents,
-                self.embeddings
-            )
-            # Save the index
-            self.save_local(settings.VECTOR_STORE_PATH)
-            logger.info(f"Vector store initialized with {len(documents)} chunks")
-        else:
-            logger.warning("No sample data found to initialize vector store")
-
-    def similarity_search(
-        self,
-        query: str,
-        k: int = 3,
-        **kwargs: Any,
-    ) -> List[Document]:
-        """
-        Search for similar documents using FAISS.
-        
-        Args:
-            query: Query string
-            k: Number of documents to return
-            **kwargs: Additional arguments passed to search
-            
-        Returns:
-            List of Documents most similar to the query
-        """
-        try:
-            # Use LangChain's FAISS similarity search
-            return super().similarity_search(query, k=k, **kwargs)
-            
-        except Exception as e:
-            logger.error(
-                f"Error in similarity search: {str(e)}", 
-                exc_info=True
-            )
-            return []
+                
+        return documents

@@ -17,7 +17,7 @@ def initialize_session_state():
     if "provider" not in st.session_state:
         st.session_state.provider = LLMProvider.Anthropic
     if "model_name" not in st.session_state:
-        st.session_state.model_name = ClaudeModel.CLAUDE3_HAIKU
+        st.session_state.model_name = ClaudeModel.CLAUDE3_5_HAIKU
     if "thread_id" not in st.session_state:
         st.session_state.thread_id = str(uuid.uuid4())
     if "persona" not in st.session_state:

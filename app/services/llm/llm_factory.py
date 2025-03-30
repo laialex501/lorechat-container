@@ -3,7 +3,7 @@ from typing import Union
 
 from app import logger
 from app.services.llm.llm_base import (BaseLLMService, BaseModel, ClaudeModel,
-                                       LLMProvider, OpenAIModel)
+                                       DeepseekModel, LLMProvider, OpenAIModel)
 from app.services.llm.llm_bedrock_service import BedrockService
 from app.services.llm.llm_openai_service import OpenAIService
 from langchain.chat_models.base import BaseChatModel
@@ -15,7 +15,7 @@ class LLMFactory:
     @staticmethod
     def create_llm_service(
         provider: LLMProvider = LLMProvider.Anthropic,
-        model_name: BaseModel = ClaudeModel.CLAUDE3_SONNET
+        model_name: BaseModel = ClaudeModel.CLAUDE3_5_HAIKU
     ) -> Union[BaseLLMService, BaseChatModel]:
         """
         Create and return an LLM service instance.
@@ -31,12 +31,16 @@ class LLMFactory:
             ValueError: If the provider is unknown
         """
         logger.info("Initializing LLM service")
-        if provider == LLMProvider.OPENAI:
+        if provider == LLMProvider.OpenAI:
             model = model_name or OpenAIModel.GPT35_TURBO
             return OpenAIService(model)
         
         elif provider == LLMProvider.Anthropic:
-            model = model_name or ClaudeModel.CLAUDE3_HAIKU
+            model = model_name or ClaudeModel.CLAUDE3_5_HAIKU
+            return BedrockService(model)
+        
+        elif provider == LLMProvider.Deepseek:
+            model = model_name or DeepseekModel.DEEPSEEK_R1
             return BedrockService(model)
         
         else:
