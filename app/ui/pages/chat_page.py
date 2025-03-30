@@ -4,7 +4,9 @@ import uuid
 import streamlit as st
 from app import logger
 from app.chat.service import ChatMessage, ChatService
-from app.services.llm import ClaudeModel, LLMFactory, LLMProvider, OpenAIModel
+from app.services.llm import (AmazonModel, BaseModel, ClaudeModel,
+                              DeepseekModel, LLMFactory, LLMProvider,
+                              OpenAIModel)
 from app.services.prompts import PersonaType, PromptFactory
 from app.services.vectorstore import VectorStoreFactory
 from app.ui.components.theme import FANTASY_THEME, get_thinking_html
@@ -58,10 +60,17 @@ def on_model_change():
 
 def get_available_models():
     """Get available models based on selected provider."""
+    def get_models(model_type: BaseModel):
+        return {m: m.name.replace('_', ' ').title() for m in model_type}
+
     if st.session_state.provider == LLMProvider.Anthropic:
-        return {m: m.name.replace('_', ' ').title() for m in ClaudeModel}
-    elif st.session_state.provider == LLMProvider.OPENAI:
-        return {m: m.name.replace('_', ' ').title() for m in OpenAIModel}
+        return get_models(ClaudeModel)
+    elif st.session_state.provider == LLMProvider.OpenAI:
+        return get_models(OpenAIModel)
+    elif st.session_state.provider == LLMProvider.Deepseek:
+        return get_models(DeepseekModel)
+    elif st.session_state.provider == LLMProvider.Amazon:
+        return get_models(AmazonModel)
     else:
         return {}
 
@@ -86,15 +95,15 @@ def render_chat_page():
     """, unsafe_allow_html=True)
     st.markdown(FANTASY_THEME, unsafe_allow_html=True)
     logger.info("Fantasy theme applied")
-    
+
     initialize_session_state()
-    
+
     # Get current persona configuration
     persona = PromptFactory.create_prompt(st.session_state.persona)
     ui_config = persona.get_ui_config()
-    
+
     st.title(f"Welcome to LoreChat {ui_config['icon']}")
-    
+
     # Persona selection in sidebar
     with st.sidebar:
         st.selectbox(
@@ -104,7 +113,7 @@ def render_chat_page():
             key="persona",
             on_change=on_persona_change
         )
-    
+
     # Show welcome message if no messages exist
     if not st.session_state.messages:
         with st.chat_message("assistant", avatar=ui_config["icon"]):
@@ -119,7 +128,7 @@ def render_chat_page():
             key="provider",
             on_change=on_provider_change
         )
-        
+ 
         models = get_available_models()
         st.selectbox(
             "Model",
@@ -160,7 +169,7 @@ def render_chat_page():
                 get_thinking_html(ui_config["thinking_text"]),
                 unsafe_allow_html=True
             )
-            
+   
             # Process message and stream response
             with st.chat_message("assistant", avatar=ui_config["icon"]):
                 response = st.write_stream(
@@ -173,7 +182,7 @@ def render_chat_page():
                 st.session_state.messages.append(
                     ChatMessage(role="assistant", content=response)
                 )
-            
+
             # Clear thinking animation
             thinking_placeholder.empty()
 

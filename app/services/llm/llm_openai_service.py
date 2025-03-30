@@ -16,7 +16,7 @@ class OpenAIService(BaseLLMService, ChatOpenAI):
     and ChatOpenAI for OpenAI-specific functionality.
     """
 
-    def __init__(self, model: OpenAIModel = OpenAIModel.GPT35_TURBO):
+    def __init__(self, model: OpenAIModel = OpenAIModel.GPT_4O_MINI):
         """Initialize the OpenAI service with model configuration."""
         if not settings.OPENAI_API_KEY:
             raise ValueError("OpenAI API key is not configured")

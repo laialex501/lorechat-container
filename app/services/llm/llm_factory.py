@@ -2,8 +2,9 @@
 from typing import Union
 
 from app import logger
-from app.services.llm.llm_base import (BaseLLMService, BaseModel, ClaudeModel,
-                                       DeepseekModel, LLMProvider, OpenAIModel)
+from app.services.llm.llm_base import (AmazonModel, BaseLLMService, BaseModel,
+                                       ClaudeModel, DeepseekModel, LLMProvider,
+                                       OpenAIModel)
 from app.services.llm.llm_bedrock_service import BedrockService
 from app.services.llm.llm_openai_service import OpenAIService
 from langchain.chat_models.base import BaseChatModel
@@ -32,7 +33,7 @@ class LLMFactory:
         """
         logger.info("Initializing LLM service")
         if provider == LLMProvider.OpenAI:
-            model = model_name or OpenAIModel.GPT35_TURBO
+            model = model_name or OpenAIModel.GPT_4O_MINI
             return OpenAIService(model)
         
         elif provider == LLMProvider.Anthropic:
@@ -41,6 +42,10 @@ class LLMFactory:
         
         elif provider == LLMProvider.Deepseek:
             model = model_name or DeepseekModel.DEEPSEEK_R1
+            return BedrockService(model)
+        
+        elif provider == LLMProvider.Amazon:
+            model = model_name or AmazonModel.AMAZON_NOVA_LITE
             return BedrockService(model)
         
         else:

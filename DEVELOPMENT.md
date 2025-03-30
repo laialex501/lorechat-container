@@ -79,8 +79,6 @@ VECTOR_STORE_PATH=local_vectorstore/faiss
 EMBEDDING_DIMENSIONS=1536  # For Claude embeddings
 
 # LLM Configuration
-LLM_PROVIDER=anthropic  # or openai
-LLM_MODEL=claude-3-sonnet-20240229  # or gpt-3.5-turbo
 OPENAI_API_KEY=your_key_here  # If using OpenAI
 
 # AWS Configuration
@@ -127,7 +125,7 @@ class ChatState(MessagesState):
 def retrieve_context(state: ChatState) -> Dict[str, Any]:
     """Retrieve relevant documents for context."""
     latest_message = state["messages"][-1]
-    docs = vector_store.get_relevant_documents(
+    docs = vector_store.invoke(
         latest_message.content,
         search_type="hybrid",  # Uses dense + sparse vectors
         k=1  # Number of documents to retrieve

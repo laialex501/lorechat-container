@@ -10,7 +10,7 @@ from app.services.vectorstore.base import (BaseVectorStoreService,
 from app.services.vectorstore.faiss_service import FAISSService
 from app.services.vectorstore.opensearch_service import OpenSearchService
 from app.services.vectorstore.upstash_service import UpstashService
-from langchain.vectorstores.faiss import FAISS
+from langchain_community.vectorstores import FAISS
 
 
 class VectorStoreFactory:

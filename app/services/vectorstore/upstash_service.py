@@ -40,40 +40,51 @@ class UpstashService(BaseVectorStoreService):
 
     def _get_credentials(self) -> tuple[str, str]:
         """Get Upstash credentials based on environment."""
-        if settings.ENV == Environment.PRODUCTION:
-            # Production uses secrets
-            if not settings.UPSTASH_ENDPOINT_SECRET_NAME:
-                raise ValueError("UPSTASH_ENDPOINT_SECRET_NAME is required")
-            if not settings.UPSTASH_TOKEN_SECRET_NAME:
-                raise ValueError("UPSTASH_TOKEN_SECRET_NAME is required")
+        try:
+            if settings.ENV == Environment.PRODUCTION:
+                logger.info("Getting credentials for production")
+                # Production uses secrets
+                if not settings.UPSTASH_ENDPOINT_SECRET_NAME:
+                    raise ValueError("UPSTASH_ENDPOINT_SECRET_NAME is required")
+                if not settings.UPSTASH_TOKEN_SECRET_NAME:
+                    raise ValueError("UPSTASH_TOKEN_SECRET_NAME is required")
 
-            # Get secrets from AWS Secrets Manager
-            secrets = boto3.client(
-                'secretsmanager',
-                region_name=settings.AWS_DEFAULT_REGION
-            )
-            
-            # Get Upstash endpoint
-            endpoint_secret = secrets.get_secret_value(
-                SecretId=settings.UPSTASH_ENDPOINT_SECRET_NAME
-            )
-            endpoint = json.loads(endpoint_secret['SecretString'])['endpoint']
-            
-            # Get Upstash token
-            token_secret = secrets.get_secret_value(
-                SecretId=settings.UPSTASH_TOKEN_SECRET_NAME
-            )
-            token = json.loads(token_secret['SecretString'])['token']
+                try:
+                    # Get secrets from AWS Secrets Manager
+                    secrets = boto3.client(
+                        'secretsmanager',
+                        region_name=settings.AWS_DEFAULT_REGION
+                    )
+                    
+                    # Get Upstash endpoint
+                    endpoint_secret = secrets.get_secret_value(
+                        SecretId=settings.UPSTASH_ENDPOINT_SECRET_NAME
+                    )
+                    endpoint = endpoint_secret['SecretString']
+                    
+                    # Get Upstash token
+                    token_secret = secrets.get_secret_value(
+                        SecretId=settings.UPSTASH_TOKEN_SECRET_NAME
+                    )
+                    token = token_secret['SecretString']
+                except (json.JSONDecodeError, KeyError) as e:
+                    raise ValueError(f"Invalid credential format: {str(e)}")
+                except Exception as e:
+                    raise ValueError(f"Failed to retrieve credentials: {str(e)}")
 
-        # We can specify directly in local dev
-        elif settings.ENV == Environment.DEVELOPMENT:
-            if not settings.UPSTASH_ENDPOINT:
-                raise ValueError("UPSTASH_ENDPOINT is required")
-            if not settings.UPSTASH_TOKEN:
-                raise ValueError("UPSTASH_TOKEN is required")
-            
-            endpoint = settings.UPSTASH_ENDPOINT
-            token = settings.UPSTASH_TOKEN
+            # We can specify directly in local dev
+            elif settings.ENV == Environment.DEVELOPMENT:
+                logger.info("Using local credentials for development")
+                if not settings.UPSTASH_ENDPOINT:
+                    raise ValueError("UPSTASH_ENDPOINT is required")
+                if not settings.UPSTASH_TOKEN:
+                    raise ValueError("UPSTASH_TOKEN is required")
+                
+                endpoint = settings.UPSTASH_ENDPOINT
+                token = settings.UPSTASH_TOKEN
+        except Exception as e:
+            logger.error(f"Error getting Upstash credentials: {str(e)}")
+            raise
             
         return endpoint, token
 

@@ -29,12 +29,6 @@ class LLMProvider(str, Enum):
     BEDROCK = "bedrock"
 
 
-# LLM Model Constants
-OPENAI_MODELS = {
-    "gpt-3.5-turbo": "gpt-3.5-turbo",
-    "gpt-4": "gpt-4",
-}
-
 BEDROCK_MODELS = {
     "claude-3-sonnet": "anthropic.claude-3-sonnet-20240229-v1:0",
     "claude-3-haiku": "anthropic.claude-3-haiku-20240307-v1:0",

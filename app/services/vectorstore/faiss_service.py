@@ -8,9 +8,9 @@ from app.services.embeddings.bedrock import BaseEmbeddingModel
 from app.services.vectorstore.base import BaseVectorStoreService
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores.faiss import FAISS
 from langchain_community.docstore.base import Docstore
 from langchain_community.docstore.in_memory import InMemoryDocstore
+from langchain_community.vectorstores import FAISS
 from pydantic import ConfigDict, PrivateAttr
 
 
@@ -31,6 +31,7 @@ class FAISSService(BaseVectorStoreService):
         index_to_docstore_id: Dict[int, str] = {}
     ):
         """Initialize FAISS service."""
+        logger.info("Initializing FAISS service")
         # Initialize BaseVectorStoreService first
         super().__init__(embedding_function=embedding_function)
         

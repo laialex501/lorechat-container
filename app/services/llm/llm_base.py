@@ -15,27 +15,34 @@ class BaseModel(str, Enum):
 
 class OpenAIModel(BaseModel):
     """Available OpenAI models."""
-    GPT35_TURBO = "gpt-3.5-turbo"
-    GPT35_TURBO_16K = "gpt-3.5-turbo-16k"
-    GPT35_MINI = "gpt-3.5-turbo-0125"
+    GPT_4O_MINI = "gpt-4o-mini"
 
+
+# https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html
+# Use cross-region inference profiles for the following bedrock profiles
 
 class ClaudeModel(BaseModel):
     """Available Claude models via Bedrock."""
-    CLAUDE3_5_HAIKU = "anthropic.claude-3-5-haiku-20241022-v1:0"
-    CLAUDE3_5_SONNET = "anthropic.claude-3-5-sonnet-20241022-v2:0"
+    CLAUDE3_5_HAIKU = "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+    CLAUDE3_5_SONNET = "us.anthropic.claude-3-5-sonnet-20241022-v2:0"
 
 
 class DeepseekModel(BaseModel):
     """Available DeepSeek models via Bedrock."""
-    DEEPSEEK_R1 = "deepseek.r1-v1:0"
+    DEEPSEEK_R1 = "us.deepseek.r1-v1:0"
+
+
+class AmazonModel(BaseModel):
+    """Available Amazon models via Bedrock."""
+    AMAZON_NOVA_LITE = "us.amazon.nova-lite-v1:0"
 
 
 class LLMProvider(str, Enum):
     """Available LLM providers."""
     OpenAI = "OpenAi"
     Anthropic = "Anthropic"
-    Deepseek = "DeepSeek"
+    Deepseek = "Deepseek"
+    Amazon = "Amazon"
 
 
 class BaseLLMService(BaseChatModel):
