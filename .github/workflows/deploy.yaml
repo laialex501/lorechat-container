@@ -1,5 +1,5 @@
-# This action will build container and push to ECR
-name: Build and Push Container
+# LoreChatContainer/.github/workflows/build.yml
+name: Build Container and Trigger CDK
 
 on:
   push:
@@ -11,10 +11,17 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  build-and-trigger:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Container Repo
+        uses: actions/checkout@v4
+
+      - name: Debug file structure
+        run: |
+          pwd
+          ls -la
+          ls -la docker/prod/
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -22,6 +29,7 @@ jobs:
           role-to-assume: arn:aws:iam::030238084238:role/github-oidc
           aws-region: us-east-1
 
+      # Build and push container
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -29,17 +37,17 @@ jobs:
       - name: Build and push
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: lorechat-container
+          ECR_REPOSITORY: lorechat
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -f docker/prod/Dockerfile
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      # Trigger CDK deployment to update ECS
+      # Trigger CDK deployment (Defined in lorechat-cdk/.github/workflows/deploy.yaml)
       - name: Trigger CDK Deployment
         uses: peter-evans/repository-dispatch@v2
         with:
-          token: ${{ secrets.PAT_TOKEN }}  # Need to create this
-          repository: laialx/lorechat-cdk # Trigger deployment for this package
-          event-type: update-ecs # This is used in lorechat-cdk/deploy.yaml
+          token: ${{ secrets.PAT_TOKEN }}
+          repository: laialex501/lorechat-cdk
+          event-type: update-ecs
           client-payload: '{"image_tag": "${{ github.sha }}"}'
