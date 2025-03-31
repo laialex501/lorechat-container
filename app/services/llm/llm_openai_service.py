@@ -9,28 +9,31 @@ from langchain.schema.messages import AIMessageChunk
 from langchain_community.chat_models import ChatOpenAI
 
 
-class OpenAIService(BaseLLMService, ChatOpenAI):
+class OpenAIService(ChatOpenAI, BaseLLMService):
     """
     OpenAI service implementation using LangChain's ChatOpenAI.
     Inherits from both our BaseLLMService for consistent interface
     and ChatOpenAI for OpenAI-specific functionality.
     """
 
-    def __init__(self, model: OpenAIModel = OpenAIModel.GPT_4O_MINI):
+    @property
+    def _llm_type(self) -> str:
+        """Return type of LLM."""
+        return "OpenAI LLM integration"
+
+    def __init__(self, model: OpenAIModel = OpenAIModel.GPT_4o_MINI):
         """Initialize the OpenAI service with model configuration."""
         if not settings.OPENAI_API_KEY:
             raise ValueError("OpenAI API key is not configured")
-            
+
         logger.info(f"Initializing OpenAI LLM service with model {model}")
-        
-        ChatOpenAI.__init__(
-            self,
+
+        super().__init__(
             model_name=model.value,
             temperature=settings.TEMPERATURE,
             streaming=True,
             api_key=settings.OPENAI_API_KEY
         )
-        BaseLLMService.__init__(self)
 
     def generate_response(
         self,
@@ -48,8 +51,7 @@ class OpenAIService(BaseLLMService, ChatOpenAI):
             Generator yielding response content strings
         """
         try:
-            for chunk in ChatOpenAI._stream(
-                self,
+            for chunk in self._stream(
                 messages,
                 **kwargs
             ):

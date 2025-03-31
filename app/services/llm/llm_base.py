@@ -15,7 +15,7 @@ class BaseModel(str, Enum):
 
 class OpenAIModel(BaseModel):
     """Available OpenAI models."""
-    GPT_4O_MINI = "gpt-4o-mini"
+    GPT_4o_MINI = "gpt-4o-mini"
 
 
 # https://docs.aws.amazon.com/bedrock/latest/userguide/inference-profiles-support.html
@@ -39,7 +39,7 @@ class AmazonModel(BaseModel):
 
 class LLMProvider(str, Enum):
     """Available LLM providers."""
-    OpenAI = "OpenAi"
+    OpenAI = "OpenAI"
     Anthropic = "Anthropic"
     Deepseek = "Deepseek"
     Amazon = "Amazon"

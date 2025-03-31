@@ -1,6 +1,7 @@
 """Chat service implementation for LoreChat."""
 from typing import Generator, List, Optional
 
+from app import logger
 from app.chat.graph.workflow import create_chat_workflow
 from app.services.llm import BaseLLMService
 from app.services.prompts import PersonaType
@@ -103,6 +104,7 @@ class ChatService:
             stream_mode="values"
         ):
             # Extract just the response content
+            logger.info(f"Event: {event}")
             if "messages" in event and event["messages"]:
                 response = event["messages"][-1]
                 if isinstance(response, AIMessage):

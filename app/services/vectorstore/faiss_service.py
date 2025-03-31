@@ -46,7 +46,7 @@ class FAISSService(BaseVectorStoreService):
     def similarity_search(
         self,
         query: str,
-        k: int = 1,
+        k: int = 3,
         **kwargs: Any,
     ) -> List[Document]:
         """Perform similarity search using internal FAISS instance."""
@@ -66,7 +66,7 @@ class FAISSService(BaseVectorStoreService):
         Get relevant context for a query from the vector store.
         Implements BaseVectorStoreService interface method.
         """
-        docs = self.similarity_search(query, k=2)
+        docs = self.similarity_search(query, k=3)
         if not docs:
             return None
             

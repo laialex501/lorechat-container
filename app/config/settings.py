@@ -78,6 +78,9 @@ class Settings(BaseSettings):
         description="AWS Bedrock model ID for embedding generation"
     )
 
+    # OpenAI
+    OPENAI_API_KEY: Optional[str] = Field(None, env="OPENAI_API_KEY")
+
     # Vector store provider configuration
     OPENSEARCH_ENDPOINT: Optional[str] = Field(None, env="OPENSEARCH_ENDPOINT")
     

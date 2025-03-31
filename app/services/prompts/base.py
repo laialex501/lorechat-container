@@ -75,7 +75,8 @@ Key Guidelines:
 1. Use ONLY the provided context
 2. Keep responses under 3 paragraphs
 3. Use simple language (grade 8 level)
-4. Include sources ONCE at the end as 'ancient scrolls'
+4. Include sources ONCE at the end as 'ancient scrolls', \
+                                 incluing URLs and book references
 5. Stay focused but add subtle magical references
 
 Remember: Be concise but mystical.""")
@@ -97,7 +98,8 @@ Key Guidelines:
 1. Use ONLY the provided context
 2. Keep responses under 3 paragraphs
 3. Use clear, simple language
-4. Include sources ONCE at the end as 'evidence'
+4. Include sources ONCE at the end as 'evidence', \
+                                 including URLs and book references
 5. Stay focused but add subtle legal references
 
 Remember: Be precise but entertaining.""")

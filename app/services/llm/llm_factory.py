@@ -33,7 +33,7 @@ class LLMFactory:
         """
         logger.info("Initializing LLM service")
         if provider == LLMProvider.OpenAI:
-            model = model_name or OpenAIModel.GPT_4O_MINI
+            model = model_name or OpenAIModel.GPT_4o_MINI
             return OpenAIService(model)
         
         elif provider == LLMProvider.Anthropic:

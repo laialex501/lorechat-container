@@ -15,7 +15,7 @@ from app.ui.components.theme import FANTASY_THEME, get_thinking_html
 def initialize_session_state():
     """Initialize session state variables."""
     if "messages" not in st.session_state:
-        st.session_state.messages = []
+        st.session_state.messages = []  # Empty initial messages
     if "provider" not in st.session_state:
         st.session_state.provider = LLMProvider.Anthropic
     if "model_name" not in st.session_state:
@@ -114,16 +114,11 @@ def render_chat_page():
             on_change=on_persona_change
         )
 
-    # Show welcome message if no messages exist
-    if not st.session_state.messages:
-        with st.chat_message("assistant", avatar=ui_config["icon"]):
-            st.markdown(ui_config["greeting"])
-
     # Model selection in sidebar
     with st.sidebar:
         st.selectbox(
             "Provider",
-            options=LLMProvider,
+            options=[LLMProvider.Anthropic, LLMProvider.OpenAI, LLMProvider.Deepseek, LLMProvider.Amazon],
             format_func=lambda x: x.title(),
             key="provider",
             on_change=on_provider_change
@@ -137,6 +132,10 @@ def render_chat_page():
             key="model_name",
             on_change=on_model_change
         )
+
+    # Always show greeting at the top
+    with st.chat_message("assistant", avatar=ui_config["icon"]):
+        st.markdown(ui_config["greeting"])
 
     # Chat messages
     for message in st.session_state.messages:
