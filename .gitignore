@@ -78,3 +78,8 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Testing
+docs/
+sampledata/
+dev/
