@@ -8,14 +8,14 @@ A modern AI chat platform that makes website content come alive through conversa
 
 Welcome to LoreChat! This is my GenAI portfolio project to demonstrate graph-based AI conversations. 
 
-What makes it special? LoreChat uses LangGraph to create smart, flowing conversations about your website content. Think of it as your website's friendly AI guide.
+What makes it special? LoreChat uses LangGraph to create smart, flowing conversations about website content. Think of it as your website's friendly AI guide.
 
-Why LangGraph? I found that traditional chat systems can get messy with complex conversations. LangGraph keeps things clean and organized. It's like having a well-designed roadmap for each chat.
+Why LangGraph? I wanted to get more familiar with modern AI frameworks like LangGraph and LangChain. In the future, I am interested in exploring alternatives like CrewAI and AutoGen.
 
-Want to see how it works? LoreChat aims to handle about 50 users at once, with a quick response time. The magic happens through:
-- Smart context finding 🔍
-- Natural conversations 💭
-- Clear source tracking 📝
+How does it work? The magic happens through:
+- Hybrid vector search for relevant content 🔍
+- Natural conversations using LLMs 💭
+- Clear source tracking, so you can see the original content for yourself 📝
 
 LoreChat works with [LoreChatCDK](https://github.com/laialex501/lorechat-cdk) to run smoothly in the cloud.
 
@@ -23,14 +23,16 @@ LoreChat works with [LoreChatCDK](https://github.com/laialex501/lorechat-cdk) to
 
 Smart Conversations:
 - Graph-based chat flows 🗺️
-- Smart memory management 🧠
+- Chat history and memory management 🧠
 - Source tracking in responses 📚
-- Fast responses ⚡
+- Dynamic LLM swapping at runtime 🔄
+- Dynamic chat persona swapping at runtime 🔄
 
 Tech Choices:
-- Works with OpenAI and Claude 🤖
+- Works with OpenAI GPT, Anthropic Claude, Deepseek, and Amazon Nova 🤖
 - Local testing with FAISS 🔬
-- Cloud ready with Upstash Vector ☁️
+- Serverless vector store with Upstash Vector ☁️
+- Containerizable with either Docker or Finch for cloud deployments 🔌
 - Full system monitoring 📊
 
 ### Tech Stack 🛠️

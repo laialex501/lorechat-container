@@ -9,7 +9,7 @@ from app.services.llm import (AmazonModel, BaseModel, ClaudeModel,
                               OpenAIModel)
 from app.services.prompts import PersonaType, PromptFactory
 from app.services.vectorstore import VectorStoreFactory
-from app.ui.components.theme import FANTASY_THEME, get_thinking_html
+from app.ui.components.theme import MODERN_THEME, get_thinking_html
 
 
 def initialize_session_state():
@@ -85,22 +85,30 @@ def render_chat_page():
         initial_sidebar_state="expanded"
     )
 
-    # Apply fantasy theme with debug logging
-    logger.info("Applying fantasy theme...")
+    # Apply modern theme with debug logging
+    logger.info("Applying modern theme...")
     st.markdown("""
         <style>
             /* Debug marker to verify theme injection */
             #debug-theme-marker { display: none; }
         </style>
     """, unsafe_allow_html=True)
-    st.markdown(FANTASY_THEME, unsafe_allow_html=True)
-    logger.info("Fantasy theme applied")
+    st.markdown(MODERN_THEME, unsafe_allow_html=True)
+    logger.info("Modern theme applied")
 
     initialize_session_state()
 
     # Get current persona configuration
     persona = PromptFactory.create_prompt(st.session_state.persona)
     ui_config = persona.get_ui_config()
+    
+    # Apply persona-specific theme class
+    persona_class = "devil-theme" if st.session_state.persona == PersonaType.DEVIL else ""
+    st.markdown(f"""
+        <script>
+            document.body.className = "{persona_class}";
+        </script>
+    """, unsafe_allow_html=True)
 
     st.title(f"Welcome to LoreChat {ui_config['icon']}")
 
