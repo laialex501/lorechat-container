@@ -57,9 +57,6 @@ htmlcov/
 # Docker
 .docker/
 
-# Streamlit
-.streamlit/
-
 # Distribution / packaging
 .Python
 env/
