@@ -1,7 +1,10 @@
 """OpenAI service implementation."""
+import os
 from typing import Any, Generator, List
 
+import boto3
 from app import logger
+from app.config.constants import Environment
 from app.config.settings import settings
 from app.services.llm.llm_base import BaseLLMService, OpenAIModel
 from langchain.schema import BaseMessage
@@ -21,18 +24,55 @@ class OpenAIService(ChatOpenAI, BaseLLMService):
         """Return type of LLM."""
         return "OpenAI LLM integration"
 
+    def _get_credentials(self) -> str:
+        """Get OpenAI API key based on environment."""
+        try:
+            if settings.ENV == Environment.PRODUCTION:
+                logger.info("Getting OpenAI API key from AWS Secrets Manager")
+                # Check if secret name is configured
+                if not os.environ.get("OPENAI_API_SECRET_NAME"):
+                    raise ValueError("OPENAI_API_SECRET_NAME environment variable is required")
+
+                try:
+                    # Get secret from AWS Secrets Manager
+                    secrets = boto3.client(
+                        'secretsmanager',
+                        region_name=settings.AWS_DEFAULT_REGION
+                    )
+
+                    # Get OpenAI API key
+                    secret = secrets.get_secret_value(
+                        SecretId=os.environ.get("OPENAI_API_SECRET_NAME")
+                    )
+                    api_key = secret['SecretString']
+                    return api_key
+
+                except Exception as e:
+                    raise ValueError(f"Failed to retrieve OpenAI API key: {str(e)}")
+
+            # Use local API key in development
+            elif settings.ENV == Environment.DEVELOPMENT:
+                logger.info("Using local OpenAI API key for development")
+                if not settings.OPENAI_API_KEY:
+                    raise ValueError("OPENAI_API_KEY is required in development environment")
+                
+                return settings.OPENAI_API_KEY
+                
+        except Exception as e:
+            logger.error(f"Error getting OpenAI API key: {str(e)}")
+            raise
+
     def __init__(self, model: OpenAIModel = OpenAIModel.GPT_4o_MINI):
         """Initialize the OpenAI service with model configuration."""
-        if not settings.OPENAI_API_KEY:
-            raise ValueError("OpenAI API key is not configured")
-
+        api_key = self._get_credentials()
+        
         logger.info(f"Initializing OpenAI LLM service with model {model}")
 
         super().__init__(
             model_name=model.value,
             temperature=settings.TEMPERATURE,
             streaming=True,
-            api_key=settings.OPENAI_API_KEY
+            api_key=api_key
         )
 
     def generate_response(
