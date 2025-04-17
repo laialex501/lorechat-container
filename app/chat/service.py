@@ -1,111 +1,47 @@
-"""Chat service implementation for LoreChat."""
-from typing import Generator, List, Optional
-
+"""Chat service factory for LoreChat."""
 from app import logger
-from app.chat.graph.workflow import create_chat_workflow
+from app.chat.agentic_service import AgenticChatService
+from app.chat.base_service import BaseChatService
 from app.services.llm import BaseLLMService
 from app.services.prompts import PersonaType
-from app.services.vectorstore import BaseVectorStoreService
-from langchain.schema.messages import AIMessage, BaseMessage, HumanMessage
-from langgraph.checkpoint.memory import MemorySaver
-from pydantic import BaseModel
+from app.services.vectorstore import VectorStoreFactory
 
 
-class ChatMessage(BaseModel):
-    """Chat message model."""
-    role: str
-    content: str
-
-
-class ChatService:
+class ChatServiceFactory:
     """
-    ChatService provides a high-level interface for chat interactions using LangChain chains.
-    It handles:
-    1. Message history management and formatting
-    2. Context retrieval and integration
-    3. Response generation with proper streaming
-    4. Persona-based interactions
+    Factory for creating chat service instances.
+
+    This factory abstracts the creation of chat services and handles
+    dependencies like vector stores internally.
     """
 
-    def __init__(
-        self,
+    @staticmethod
+    def create_chat_service(
         llm_service: BaseLLMService,
-        vector_store: BaseVectorStoreService,
         persona_type: PersonaType = PersonaType.SCRIBE
-    ):
-        """Initialize chat service with required dependencies."""
-        # Store services and persona
-        self.llm_service = llm_service
-        self.vector_store = vector_store
-        self.persona_type = persona_type
+    ) -> BaseChatService:
+        """
+        Create a chat service instance.
 
-        # Create memory saver for graph checkpointing
-        self.memory = MemorySaver()
+        Args:
+            llm_service: LLM service for response generation
+            persona_type: Type of chat persona to use
 
-        # Create workflow
-        self._create_workflow()
+        Returns:
+            A chat service implementation
+        """
+        logger.info(f"Creating chat service with persona: {persona_type}")
 
-    def _create_workflow(self) -> None:
-        """Create or recreate the workflow with current settings."""
-        self.workflow = create_chat_workflow(
-            llm_service=self.llm_service,
-            vector_store=self.vector_store,
-            persona_type=self.persona_type,
-            memory=self.memory
+        # Get vector store internally
+        vector_store = VectorStoreFactory.get_vector_store()
+
+        # For now, always return AgenticChatService
+        return AgenticChatService(
+            llm_service=llm_service,
+            vector_store=vector_store,
+            persona_type=persona_type
         )
 
-    def change_persona(self, persona_type: PersonaType) -> None:
-        """Change the chat persona."""
-        self.persona_type = persona_type
-        self._create_workflow()
 
-    def _format_history(self, history: List[ChatMessage]) -> List[BaseMessage]:
-        """Format chat history into LangChain messages."""
-        messages = []
-        for msg in history:
-            if msg.role == "user":
-                messages.append(HumanMessage(content=msg.content))
-            elif msg.role == "assistant":
-                messages.append(AIMessage(content=msg.content))
-        return messages
-
-    def process_message(
-        self,
-        query: str,
-        history: Optional[List[ChatMessage]] = None,
-        thread_id: Optional[str] = None
-    ) -> Generator:
-        """
-        Process a message and return a streaming response.
- 
-        Args:
-            query: Current user query
-            history: Optional chat history
-            thread_id: Optional thread ID for conversation tracking
-        
-        Returns:
-            Generator for streaming response
-        """
-        # Format history and create input message
-        formatted_history = self._format_history(history) if history else []
-        input_message = HumanMessage(content=query)
-
-        # Create config with thread ID
-        config = {
-            "configurable": {
-                "thread_id": thread_id or "default"
-            }
-        }
-
-        # Stream through workflow with config
-        for event in self.workflow.stream(
-            {"messages": formatted_history + [input_message]},
-            config=config,
-            stream_mode="values"
-        ):
-            # Extract just the response content
-            logger.info(f"Event: {event}")
-            if "messages" in event and event["messages"]:
-                response = event["messages"][-1]
-                if isinstance(response, AIMessage):
-                    yield response.content
+# For backward compatibility, re-export ChatService
+ChatService = AgenticChatService

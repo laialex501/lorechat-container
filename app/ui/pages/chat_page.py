@@ -3,12 +3,12 @@ import uuid
 
 import streamlit as st
 from app import logger
-from app.chat.service import ChatMessage, ChatService
+from app.chat.base_service import ChatMessage
+from app.chat.service import ChatServiceFactory
 from app.services.llm import (AmazonModel, BaseModel, ClaudeModel,
                               DeepseekModel, LLMFactory, LLMProvider,
                               OpenAIModel)
 from app.services.prompts import PersonaType, PromptFactory
-from app.services.vectorstore import VectorStoreFactory
 from app.ui.components.theme import MODERN_THEME, get_thinking_html
 
 
@@ -17,9 +17,9 @@ def initialize_session_state():
     if "messages" not in st.session_state:
         st.session_state.messages = []  # Empty initial messages
     if "provider" not in st.session_state:
-        st.session_state.provider = LLMProvider.Anthropic
+        st.session_state.provider = LLMProvider.Amazon
     if "model_name" not in st.session_state:
-        st.session_state.model_name = ClaudeModel.CLAUDE3_5_HAIKU
+        st.session_state.model_name = AmazonModel.AMAZON_NOVA_LITE
     if "thread_id" not in st.session_state:
         st.session_state.thread_id = str(uuid.uuid4())
     if "persona" not in st.session_state:
@@ -30,12 +30,11 @@ def initialize_session_state():
 
 def create_chat_service():
     """Create or update chat service with current settings."""
-    st.session_state.chat_service = ChatService(
+    st.session_state.chat_service = ChatServiceFactory.create_chat_service(
         llm_service=LLMFactory.create_llm_service(
             provider=st.session_state.provider,
             model_name=st.session_state.model_name
         ),
-        vector_store=VectorStoreFactory.get_vector_store(),
         persona_type=st.session_state.persona
     )
 
@@ -179,15 +178,22 @@ def render_chat_page():
    
             # Process message and stream response
             with st.chat_message("assistant", avatar=ui_config["icon"]):
-                response = st.write_stream(
-                    st.session_state.chat_service.process_message(
-                        prompt,
-                        st.session_state.messages,
-                        thread_id=st.session_state.thread_id
-                    )
-                )
+                message_placeholder = st.empty()
+                full_response = ""
+                
+                # Stream the response chunks
+                for chunk in st.session_state.chat_service.process_message(
+                    prompt,
+                    st.session_state.messages,
+                    thread_id=st.session_state.thread_id
+                ):
+                    # All chunks are now guaranteed to be strings from the service layer
+                    full_response += chunk
+                    message_placeholder.markdown(full_response)
+                
+                # Store the complete response as a string
                 st.session_state.messages.append(
-                    ChatMessage(role="assistant", content=response)
+                    ChatMessage(role="assistant", content=full_response)
                 )
 
             # Clear thinking animation

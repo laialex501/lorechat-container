@@ -35,7 +35,7 @@ class Settings(BaseSettings):
         "logs/lorechat.log",
         env="LOG_FILE"
     )
-    
+
     # LLM Response Configuration - Tune model behavior
     TEMPERATURE: float = Field(
         0.7,
@@ -47,13 +47,13 @@ class Settings(BaseSettings):
         env="MAX_RESPONSE_TOKENS",
         description="Limits response length"
     )
-    
+
     # AWS Bedrock Settings - Required for AWS integration
     AWS_DEFAULT_REGION: str = Field(
         "us-east-1",
         env="AWS_DEFAULT_REGION"
     )
-    
+
     # Vector Store - Persistent storage for embeddings
     VECTOR_STORE_PATH: Path = Field(
         BASE_DIR / "local_vectorstore" / "faiss",
@@ -83,7 +83,7 @@ class Settings(BaseSettings):
 
     # Vector store provider configuration
     OPENSEARCH_ENDPOINT: Optional[str] = Field(None, env="OPENSEARCH_ENDPOINT")
-    
+
     # Upstash Settings
     UPSTASH_ENDPOINT_SECRET_NAME: Optional[str] = Field(
         None,
