@@ -4,6 +4,7 @@ import json
 from typing import Any, Dict, List
 
 from app import logger
+from app.chat.graph.constants import MAX_REFINEMENTS, SubqueryStatus
 from app.chat.graph.enhanced_state import EnhancedChatState, SubQuery
 from app.services.llm import BaseLLMService
 from app.services.llm.parser import normalize_llm_content
@@ -74,11 +75,11 @@ class ProcessingNode:
             if isinstance(result, Exception):
                 # Handle exceptions
                 logger.error(f"Error processing subquery: {str(result)}", exc_info=True)
-                sq.status = "failed"
+                sq.status = SubqueryStatus.FAILED
                 sq.result = f"Error: {str(result)}"
             else:
                 # Update with successful result
-                sq.status = "complete"
+                sq.status = SubqueryStatus.COMPLETE
                 sq.retrieved_docs = result.get("retrieved_docs", [])
                 sq.refinement_count = result.get("refinement_count", 0)
                 sq.result = result.get("answer", "No answer found")
@@ -99,6 +100,7 @@ class ProcessingNode:
             Dictionary with processing results
         """
         logger.info(f"Processing subquery: {subquery.text}")
+        subquery.status = SubqueryStatus.PROCESSING
 
         try:
             # Initial retrieval
@@ -109,7 +111,8 @@ class ProcessingNode:
 
             # Refine if needed (only once to avoid loops)
             refinement_count = 0
-            if not evaluation["sufficient"] and refinement_count < 1:
+            # TODO: Use loop with refinements instead
+            if not evaluation["sufficient"] and refinement_count < MAX_REFINEMENTS:
                 # Refine query
                 refined_query = await self._refine_query(subquery.text, docs)
                 refinement_count += 1
@@ -178,7 +181,7 @@ class ProcessingNode:
         
         # Format context from retrieved docs
         context = "\n\n".join(
-            f"Document {i+1}:\n{doc.page_content}" 
+            f"Document {i+1}:\n{doc.page_content}"
             for i, doc in enumerate(docs)
         )
         

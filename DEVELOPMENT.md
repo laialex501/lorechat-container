@@ -325,7 +325,98 @@ docker-compose -f docker/dev/docker-compose.yml up
 # Add HTML files
 cp your_content.html sampledata/
 
-### 4. Code Style
+### 4. Testing
+
+The project uses pytest for testing. Tests are organized into unit tests and integration tests.
+
+#### Test Structure
+
+```
+tests/
+├── conftest.py           # Common test fixtures and utilities
+├── unit/                 # Unit tests
+│   ├── chat/             # Tests for chat components
+│   │   ├── graph/        # Tests for graph components
+│   │   └── ...
+│   └── services/         # Tests for service components
+│       ├── llm/          # Tests for LLM services
+│       ├── vectorstore/  # Tests for vector store services
+│       └── ...
+└── integration/          # Integration tests
+```
+
+#### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run unit tests only
+pytest tests/unit
+
+# Run tests for a specific component
+pytest tests/unit/services/llm
+
+# Run a specific test file
+pytest tests/unit/services/llm/test_parser.py
+
+# Run with coverage
+pytest --cov=app
+
+# Generate HTML coverage report
+pytest --cov=app --cov-report=html
+```
+
+#### Test Categories
+
+**Unit Tests**
+
+Unit tests focus on testing individual components in isolation. They use mocks to replace dependencies and focus on the behavior of the component being tested.
+
+Key unit test areas:
+- **LLM Services**: Tests for the LLM service implementations and utilities
+- **Vector Store Services**: Tests for the vector store service implementations
+- **Graph Components**: Tests for the LangGraph nodes and workflow
+- **Chat Services**: Tests for the chat service implementations
+
+**Integration Tests**
+
+Integration tests focus on testing the interaction between components. They use real or realistic implementations of dependencies and focus on the behavior of the system as a whole.
+
+#### Test Fixtures
+
+Common test fixtures are defined in `conftest.py`. These include:
+
+- `mock_embeddings`: A mock implementation of the Embeddings interface
+- `mock_llm_service`: A mock implementation of the BaseLLMService interface
+- `mock_vector_store`: A mock implementation of the BaseVectorStoreService interface
+- `mock_prompt`: A mock implementation of the BasePrompt interface
+- `sample_subquery`: A sample SubQuery object for testing
+- `sample_enhanced_state`: A sample EnhancedChatState object for testing
+
+#### Async Testing
+
+Many components in LoreChat use asyncio for concurrent operations. The tests use pytest-asyncio to test these components. Async tests are marked with the `@pytest.mark.asyncio` decorator.
+
+#### Mocking Strategy
+
+The tests use the following mocking strategy:
+
+1. **External Services**: External services like LLM APIs are always mocked
+2. **Internal Dependencies**: Internal dependencies are mocked for unit tests but may use real implementations for integration tests
+3. **State**: State objects are created fresh for each test to ensure isolation
+
+#### Adding New Tests
+
+When adding new tests:
+
+1. Follow the existing directory structure
+2. Use the appropriate fixtures from `conftest.py`
+3. Mock external dependencies
+4. Test both success and error cases
+5. Add appropriate markers (e.g., `@pytest.mark.asyncio` for async tests)
+
+### 5. Code Style
 
 The project uses:
 - flake8 for linting

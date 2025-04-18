@@ -5,7 +5,7 @@ import faiss
 from app import logger
 from app.config.settings import settings
 from app.services.embeddings.bedrock import BaseEmbeddingModel
-from app.services.vectorstore.base import BaseVectorStoreService
+from app.services.vectorstore.vectorstore_base import BaseVectorStoreService
 from langchain.docstore.document import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.docstore.base import Docstore

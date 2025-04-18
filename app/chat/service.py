@@ -33,7 +33,7 @@ class ChatServiceFactory:
         logger.info(f"Creating chat service with persona: {persona_type}")
 
         # Get vector store internally
-        vector_store = VectorStoreFactory.get_vector_store()
+        vector_store = VectorStoreFactory.create_vector_store()
 
         # For now, always return AgenticChatService
         return AgenticChatService(

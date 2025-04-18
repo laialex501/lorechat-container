@@ -1,15 +1,16 @@
 """Vector store factory for LoreChat."""
 import os
+from typing import Optional
 
 from app import logger
 from app.config.constants import Environment
 from app.config.settings import settings
 from app.services.embeddings.bedrock import BedrockEmbeddingModel
-from app.services.vectorstore.base import (BaseVectorStoreService,
-                                           VectorStoreProvider)
 from app.services.vectorstore.faiss_service import FAISSService
 from app.services.vectorstore.opensearch_service import OpenSearchService
 from app.services.vectorstore.upstash_service import UpstashService
+from app.services.vectorstore.vectorstore_base import (BaseVectorStoreService,
+                                                       VectorStoreProvider)
 from langchain_community.vectorstores import FAISS
 
 
@@ -17,15 +18,19 @@ class VectorStoreFactory:
     """Factory class for vector store service."""
 
     @staticmethod
-    def get_vector_store() -> BaseVectorStoreService:
+    def create_vector_store(provider: Optional[VectorStoreProvider] = None) -> BaseVectorStoreService:
         """Factory function to get vector store service."""
-        logger.info("Initializing vector store...")
-        if settings.VECTOR_STORE_PROVIDER == VectorStoreProvider.UPSTASH:
+        if not provider:
+            provider = settings.VECTOR_STORE_PROVIDER
+        logger.info(f"Initializing vector store with provider {provider}...")
+        if provider == VectorStoreProvider.UPSTASH:
             return UpstashService()
-        elif settings.VECTOR_STORE_PROVIDER == VectorStoreProvider.OPENSEARCH:
+        elif provider == VectorStoreProvider.OPENSEARCH:
             return OpenSearchService()
-        else:
+        elif provider == VectorStoreProvider.FAISS:
             return VectorStoreFactory._create_faiss_service()
+        else:
+            raise ValueError(f"Invalid vector store provider: {provider}")
 
     @staticmethod
     def _create_faiss_service() -> FAISSService:

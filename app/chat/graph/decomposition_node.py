@@ -1,5 +1,4 @@
 """Decomposition node for agentic retrieval system."""
-import json
 from typing import Any, Dict, List, Tuple
 
 from app import logger

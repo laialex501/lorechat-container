@@ -5,7 +5,7 @@ import boto3
 from app import logger
 from app.config.settings import settings
 from app.services.embeddings.bedrock import BedrockEmbeddingModel
-from app.services.vectorstore.base import BaseVectorStoreService
+from app.services.vectorstore.vectorstore_base import BaseVectorStoreService
 from langchain.schema import Document
 from langchain_community.vectorstores import OpenSearchVectorSearch
 from opensearchpy import AWSV4SignerAuth

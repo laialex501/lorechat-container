@@ -1,6 +1,6 @@
 """Agentic chat service implementation for LoreChat."""
 import asyncio
-from typing import Generator, List, Optional
+from typing import AsyncGenerator, Generator, List, Optional
 
 from app import logger
 from app.chat.base_service import BaseChatService, ChatMessage
@@ -73,7 +73,7 @@ class AgenticChatService(BaseChatService):
         query: str,
         history: Optional[List[ChatMessage]] = None,
         thread_id: Optional[str] = None
-    ) -> Generator:
+    ) -> AsyncGenerator[str, None]:
         """
         Process a message asynchronously and return a streaming response.
  
@@ -98,7 +98,8 @@ class AgenticChatService(BaseChatService):
 
         logger.info(f"Processing message with thread_id: {thread_id or 'default'}")
 
-        # Stream through workflow with config
+        # Stream through the results directly from workflow.astream
+        # Note: astream returns an AsyncIterator, not a coroutine, so we don't await it
         async for event in self.workflow.astream(
             {"messages": formatted_history + [input_message]},
             config=config,

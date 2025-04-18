@@ -35,11 +35,14 @@ class CombinationNode:
         
         if not subqueries:
             logger.warning("No subqueries to combine")
-            return {"combined_answer": "No results available."}
+            return {"combined_answer": "I don't have enough information to answer your question."}
         
         # For simple queries (just one subquery), no combination needed
         if len(subqueries) == 1:
             logger.info("Single subquery, passing through result")
+            # Check if the subquery failed
+            if not subqueries[0].result:
+                return {"combined_answer": "I couldn't find the information to answer your question."}
             return {"combined_answer": subqueries[0].result}
         
         # For complex queries, combine results

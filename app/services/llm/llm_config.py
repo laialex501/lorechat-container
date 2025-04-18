@@ -31,10 +31,10 @@ class LLMConfiguration:
 
     # Default configuration mapping node types to provider/model
     DEFAULT_CONFIG: Dict[NodeType, Optional[Dict[str, str]]] = {
-        NodeType.DECOMPOSITION: {"provider": LLMProvider.Anthropic, "model": ClaudeModel.CLAUDE3_5_SONNET},
+        NodeType.DECOMPOSITION: {"provider": LLMProvider.Deepseek, "model": DeepseekModel.DEEPSEEK_R1},
         NodeType.PROCESSING: {"provider": LLMProvider.Amazon, "model": AmazonModel.AMAZON_NOVA_LITE},
         NodeType.EVALUATION: {"provider": LLMProvider.Anthropic, "model": ClaudeModel.CLAUDE3_5_HAIKU},
-        NodeType.REFINEMENT: {"provider": LLMProvider.Deepseek, "model": DeepseekModel.DEEPSEEK_R1},
+        NodeType.REFINEMENT: {"provider": LLMProvider.Anthropic, "model": ClaudeModel.CLAUDE3_5_SONNET},
         NodeType.ANSWER: {"provider": LLMProvider.OpenAI, "model": OpenAIModel.GPT_4o_MINI},
         NodeType.COMBINATION: {"provider": LLMProvider.Anthropic, "model": ClaudeModel.CLAUDE3_5_HAIKU},
         NodeType.RESPONSE: None  # Use user-selected model

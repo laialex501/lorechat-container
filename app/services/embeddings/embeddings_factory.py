@@ -1,7 +1,7 @@
 """Factory for creating embedding model instances."""
 from app import logger
-from app.services.embeddings.base import BaseEmbeddingModel
 from app.services.embeddings.bedrock import BedrockEmbeddingModel
+from app.services.embeddings.embeddings_base import BaseEmbeddingModel
 
 
 class EmbeddingsFactory:

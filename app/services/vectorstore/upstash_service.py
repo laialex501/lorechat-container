@@ -10,7 +10,7 @@ from app.config.constants import Environment
 from app.config.settings import settings
 from app.services.embeddings.bedrock import (BaseEmbeddingModel,
                                              BedrockEmbeddingModel)
-from app.services.vectorstore.base import BaseVectorStoreService
+from app.services.vectorstore.vectorstore_base import BaseVectorStoreService
 from langchain.schema import Document
 from pydantic import ConfigDict, PrivateAttr
 from upstash_vector import Index

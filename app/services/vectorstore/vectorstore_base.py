@@ -114,9 +114,9 @@ class BaseVectorStoreService(VectorStore, BaseRetriever, BaseModel):
             "This is a retrieval-only service. Documents should be added through the ingestion pipeline."
         )
     
-    def get_relevant_documents(self, query: str) -> List[Document]:
+    def _get_relevant_documents(self, query: str) -> List[Document]:
         """
-        Required implementation of BaseRetriever.get_relevant_documents.
+        Required implementation of BaseRetriever._get_relevant_documents.
         Uses similarity_search under the hood.
         """
         return self.similarity_search(query)

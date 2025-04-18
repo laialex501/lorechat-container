@@ -3,7 +3,7 @@ from typing import List
 
 from app import logger
 from app.config.settings import settings
-from app.services.embeddings.base import BaseEmbeddingModel
+from app.services.embeddings.embeddings_base import BaseEmbeddingModel
 from langchain_aws import BedrockEmbeddings
 
 
